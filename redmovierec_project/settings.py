@@ -155,15 +155,13 @@ DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 LOGIN_URL = 'login'
 
 # Email Configuration (for password reset OTP)
-# Using Gmail SMTP for sending emails
 EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
 EMAIL_HOST = 'smtp.gmail.com'
 EMAIL_PORT = 587
 EMAIL_USE_TLS = True
-EMAIL_HOST_USER = 'filmoracle1@gmail.com'
-EMAIL_HOST_PASSWORD = 'tfna kmsv yale uqmf'
-DEFAULT_FROM_EMAIL = 'filmoracle1@gmail.com'
-DEFAULT_FROM_EMAIL = 'noreply@filmoracle.com'
+EMAIL_HOST_USER = os.environ.get('EMAIL_HOST_USER', 'filmoracle1@gmail.com')
+EMAIL_HOST_PASSWORD = os.environ.get('EMAIL_HOST_PASSWORD', 'tfna kmsv yale uqmf')
+DEFAULT_FROM_EMAIL = os.environ.get('DEFAULT_FROM_EMAIL', 'noreply@filmoracle.com')
 
 
 
