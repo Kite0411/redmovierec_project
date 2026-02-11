@@ -11,7 +11,9 @@ https://docs.djangoproject.com/en/4.2/ref/settings/
 """
 
 from pathlib import Path
-
+import os
+import dj_database_url
+from pathlib import Path
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
 
@@ -19,14 +21,13 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 # Quick-start development settings - unsuitable for production
 # See https://docs.djangoproject.com/en/4.2/howto/deployment/checklist/
 
-# SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = 'django-insecure-y1+j^@wz(l3k@8#b289)m9_b9jr*iz)ez-q4sm2=!td!6c1ypn'
+SECRET_KEY = os.environ.get('SECRET_KEY', 'django-insecure-y1+j^@wz(l3k@8#b289)m9_b9jr*iz)ez-q4sm2=!td!6c1ypn')
+DEBUG = os.environ.get('DEBUG', 'False') == 'True'
+ALLOWED_HOSTS = os.environ.get('ALLOWED_HOSTS', 'localhost,127.0.0.1').split(',')
 
-# SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = True
-
-ALLOWED_HOSTS = []
-
+# Add your Render domain
+if 'RENDER' in os.environ:
+    ALLOWED_HOSTS.append(os.environ.get('RENDER_EXTERNAL_HOSTNAME'))
 
 # Application definition
 
@@ -40,8 +41,10 @@ INSTALLED_APPS = [
     'moviehub',
 ]
 
+# Static files with WhiteNoise
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
+    'whitenoise.middleware.WhiteNoiseMiddleware',  # Add this line
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.common.CommonMiddleware',
     'django.middleware.csrf.CsrfViewMiddleware',
@@ -70,15 +73,32 @@ TEMPLATES = [
 
 WSGI_APPLICATION = 'redmovierec_project.wsgi.application'
 
+STATICFILES_STORAGE = 'whitenoise.storage.CompressedManifestStaticFilesStorage'
 
+# Cloudinary for media files (persistent image storage)
+if 'CLOUDINARY_URL' in os.environ:
+    INSTALLED_APPS += ['cloudinary_storage', 'cloudinary']
+    
+    CLOUDINARY_STORAGE = {
+        'CLOUDINARY_URL': os.environ.get('CLOUDINARY_URL'),
+    }
+    
+    DEFAULT_FILE_STORAGE = 'cloudinary_storage.storage.MediaCloudinaryStorage'
+    
+    # Cloudinary settings
+    import cloudinary
+    cloudinary.config(
+        cloudinary_url=os.environ.get('CLOUDINARY_URL')
+    )
 # Database
 # https://docs.djangoproject.com/en/4.2/ref/settings/#databases
 
+# Database - Use PostgreSQL on Render
 DATABASES = {
-    'default': {
-        'ENGINE': 'django.db.backends.sqlite3',
-        'NAME': BASE_DIR / 'db.sqlite3',
-    }
+    'default': dj_database_url.config(
+        default='sqlite:///db.sqlite3',
+        conn_max_age=600
+    )
 }
 
 
@@ -128,6 +148,9 @@ MEDIA_ROOT = BASE_DIR / 'media'
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
+
+
+
 # Login URL
 LOGIN_URL = 'login'
 
@@ -141,3 +164,17 @@ EMAIL_HOST_USER = 'filmoracle1@gmail.com'
 EMAIL_HOST_PASSWORD = 'tfna kmsv yale uqmf'
 DEFAULT_FROM_EMAIL = 'filmoracle1@gmail.com'
 DEFAULT_FROM_EMAIL = 'noreply@filmoracle.com'
+
+
+
+# Security settings for production
+if not DEBUG:
+    SECURE_SSL_REDIRECT = True
+    SESSION_COOKIE_SECURE = True
+    CSRF_COOKIE_SECURE = True
+    SECURE_BROWSER_XSS_FILTER = True
+    SECURE_CONTENT_TYPE_NOSNIFF = True
+    X_FRAME_OPTIONS = 'DENY'
+    SECURE_HSTS_SECONDS = 31536000
+    SECURE_HSTS_INCLUDE_SUBDOMAINS = True
+    SECURE_HSTS_PRELOAD = True
