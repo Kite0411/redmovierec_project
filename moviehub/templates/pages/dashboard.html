@@ -1,0 +1,1590 @@
+{% load static %}
+{% load dict_extras %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dashboard - FilmOracle</title>
+    <link rel="stylesheet" href="{% static 'css/style.css' %}">
+</head>
+<body>
+    <!-- Ensure CSRF token cookie is set early by rendering a hidden csrf token form -->
+    <form id="_csrf_helper" style="display:none;">{% csrf_token %}</form>
+    <!-- Navigation -->
+    <nav>
+        <div class="logo">FilmOracle</div>
+        <ul>
+            {% if user.is_authenticated %}
+                <li class="profile-menu">
+                    <button class="profile-btn" id="profile-btn"><span class="avatar">{{ user.username|slice:":1"|upper }}</span>{{ user.username }}</button>
+                    <div class="profile-dropdown" id="profile-dropdown">
+                        <div class="profile-info">
+                            <p><strong>{{ user.username }}</strong></p>
+                            <p style="font-size: 0.9rem; color: #a0a0a0;">{{ user.email }}</p>
+                            {% if user.profile and user.profile.bio %}
+                                <p style="font-size: 0.85rem; color: #a0a0a0; margin-top: 0.5rem; font-style: italic;">{{ user.profile.bio }}</p>
+                            {% endif %}
+                        </div>
+                        <a href="{% url 'edit_profile' %}" class="dropdown-item">Edit Profile</a>
+                        <a href="{% url 'logout' %}" class="dropdown-item logout" onclick="showLogoutConfirm(event);">Logout</a>
+                    </div>
+                </li>
+                <li>
+                    <button id="theme-toggle-btn" title="Toggle theme" aria-pressed="false">
+                        <!-- Sun + Moon icons; JS toggles state -->
+                        <svg id="theme-icon-sun" width="18" height="18" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" style="display:none;">
+                            <circle cx="12" cy="12" r="4" stroke="#E53935" stroke-width="1.6"/>
+                            <g stroke="#E53935" stroke-width="1.6">
+                                <path d="M12 2v2" stroke-linecap="round" />
+                                <path d="M12 20v2" stroke-linecap="round" />
+                                <path d="M4.93 4.93l1.41 1.41" stroke-linecap="round" />
+                                <path d="M17.66 17.66l1.41 1.41" stroke-linecap="round" />
+                                <path d="M2 12h2" stroke-linecap="round" />
+                                <path d="M20 12h2" stroke-linecap="round" />
+                                <path d="M4.93 19.07l1.41-1.41" stroke-linecap="round" />
+                                <path d="M17.66 6.34l1.41-1.41" stroke-linecap="round" />
+                            </g>
+                        </svg>
+                        <svg id="theme-icon-moon" width="18" height="18" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                            <path d="M21 12.79A9 9 0 1111.21 3 7 7 0 0021 12.79z" stroke="#cfcfcf" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/>
+                        </svg>
+                    </button>
+                </li>
+            {% else %}
+                <li><a href="{% url 'login' %}">Login</a></li>
+                <li><a href="{% url 'register' %}">Register</a></li>
+            {% endif %}
+            <li><a href="{% url 'home' %}">Home</a></li>
+            <li class="nav-search">{% include 'molecules/search_bar.html' %}</li>
+        </ul>
+    </nav>
+        {% if show_welcome %}
+        <div class="notification welcome">
+            <p>Welcome back, {{ user.username }} — here are your recommendations.</p>
+        </div>
+        {% endif %}
+
+        <!-- Search Section moved to nav -->
+
+        <!-- Top filter + Top Picks Section -->
+        <div style="display:flex; align-items:center; justify-content:space-between; padding:1rem 2rem 0 2rem;">
+            <div style="display:flex; align-items:center; gap:1rem;">
+                <div class="genre-filter" id="genre-filter">
+                    <button id="genre-filter-btn" class="genre-filter-button" aria-haspopup="true" aria-expanded="false" title="Filter by genre">
+                        <!-- simple filter icon (funnel) -->
+                        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" style="vertical-align:middle;">
+                            <path d="M3 5H21" stroke="#e0e0e0" stroke-width="2" stroke-linecap="round"/>
+                            <path d="M7 12H17" stroke="#e0e0e0" stroke-width="2" stroke-linecap="round"/>
+                            <path d="M10 19H14" stroke="#e0e0e0" stroke-width="2" stroke-linecap="round"/>
+                        </svg>
+                    </button>
+                    <div class="genre-dropdown" id="genre-dropdown" aria-hidden="true">
+                        <form method="get" action="{% url 'dashboard' %}" style="display:flex; gap:0.5rem; align-items:center;">
+                            <input type="hidden" name="q" value="{{ request.GET.q|default:'' }}">
+                            <select id="genre-select-top" name="genre">
+                                <option value="">All genres</option>
+                                {% for g in genres %}
+                                    <option value="{{ g }}" {% if g == selected_genre %}selected{% endif %}>{{ g }}</option>
+                                {% endfor %}
+                            </select>
+                            <button type="submit" class="btn" style="padding:0.35rem 0.6rem;">Apply</button>
+                            {% if selected_genre %}
+                                {% if request.GET.q %}
+                                    <a href="?q={{ request.GET.q }}" class="btn" style="padding:0.35rem 0.6rem; background:#444;">Clear</a>
+                                {% else %}
+                                    <a href="?" class="btn" style="padding:0.35rem 0.6rem; background:#444;">Clear</a>
+                                {% endif %}
+                            {% endif %}
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="dashboard">
+            {% include 'organisms/top_picks.html' %}
+        </div>
+
+        <!-- All Movies Section -->
+        <div>
+            <h2 style="color: #E53935; font-size: 1.6rem; margin: 2rem 0 1rem 0; padding-left: 2rem;">All Movies</h2>
+            {% include 'organisms/movie_list.html' %}
+        </div>
+    </div>
+
+    <!-- Footer -->
+    <footer style="background-color: #1a1a1a; border-top: 1px solid #333; padding: 2rem; text-align: center; margin-top: 3rem; color: #a0a0a0;">
+        <p>&copy; 2025 FilmOracle. Rate movies and discover your next favorite.</p>
+    </footer>
+
+    <!-- Logout Confirmation Modal -->
+    <div id="logoutModal" class="logout-modal">
+        <div class="logout-modal-content">
+            <h2>Confirm Logout</h2>
+            <p>Are you sure you want to logout? You'll need to login again to access your account.</p>
+            <div class="logout-modal-buttons">
+                <button class="logout-btn-confirm" onclick="confirmLogout();">Logout</button>
+                <button class="logout-btn-cancel" onclick="cancelLogout();">Cancel</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Global Movie Modal -->
+    <div id="global-movie-modal" class="movie-modal" style="display: none;">
+        <div class="modal-overlay"></div>
+        <div class="modal-content">
+            <button class="modal-close" aria-label="Close">&times;</button>
+            <div class="modal-body">
+                <img id="modal-poster" src="" alt="" class="modal-poster" style="display: none;">
+                <div class="modal-info">
+                    <h2 id="modal-title"></h2>
+                    <p><strong>Year:</strong> <span id="modal-year"></span></p>
+                    <p><strong>Genre:</strong> <span id="modal-genre"></span></p>
+                    <p><strong>Rating:</strong> <span id="modal-rating"></span></p>
+                    <p><strong>Description:</strong></p>
+                    <p class="modal-description" id="modal-description"></p>
+                    <div class="modal-actions" id="modal-actions" style="margin-top: 1.5rem; padding-top: 1rem; border-top: 1px solid #333;">
+                        {% if user.is_authenticated %}
+                            <button class="btn modal-rate-btn" id="modal-rate-btn">Rate This Movie</button>
+                            <div id="modal-rating-widget" style="display: none; margin-top: 1rem;">
+                                {% include 'molecules/rating_form.html' with movie=None %}
+                            </div>
+                        {% else %}
+                            <a href="{% url 'login' %}?next={% url 'home' %}" class="btn">Login to rate</a>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        function cancelLogout() {
+            const modal = document.getElementById('logoutModal');
+            if (modal) modal.classList.remove('active');
+        }
+
+        function showLogoutConfirm(event) {
+            event.preventDefault();
+            const modal = document.getElementById('logoutModal');
+            if (modal) modal.classList.add('active');
+        }
+
+        function confirmLogout() {
+            window.location.href = '{% url "logout" %}';
+        }
+
+        // Close modal when clicking outside of it
+        document.addEventListener('click', function(e) {
+            const modal = document.getElementById('logoutModal');
+            if (!modal) return;
+            if (e.target === modal) cancelLogout();
+        });
+
+        // Profile dropdown toggle (robust)
+        (function() {
+            const profileBtn = document.getElementById('profile-btn');
+            const profileDropdown = document.getElementById('profile-dropdown');
+            if (!profileBtn || !profileDropdown) return;
+            profileBtn.addEventListener('click', (e) => {
+                e.stopPropagation();
+                profileDropdown.classList.toggle('active');
+            });
+
+            document.addEventListener('click', (e) => {
+                if (!profileBtn.contains(e.target) && !profileDropdown.contains(e.target)) {
+                    profileDropdown.classList.remove('active');
+                }
+            });
+        })();
+
+        // Global movie modal handler (delegated event listener)
+        (function() {
+            const globalModal = document.getElementById('global-movie-modal');
+            const overlay = globalModal.querySelector('.modal-overlay');
+            const closeBtn = globalModal.querySelector('.modal-close');
+            const rateBtn = document.getElementById('modal-rate-btn');
+            const ratingWidget = document.getElementById('modal-rating-widget');
+            window.currentMovieId = null;
+
+            function closeModal() {
+                globalModal.style.display = 'none';
+                if (ratingWidget) ratingWidget.style.display = 'none';
+            }
+
+            closeBtn.addEventListener('click', closeModal);
+            overlay.addEventListener('click', closeModal);
+
+            // Rate button toggle
+            if (rateBtn && ratingWidget) {
+                rateBtn.addEventListener('click', function(e) {
+                    e.preventDefault();
+                    const shown = ratingWidget.style.display === 'block';
+                    ratingWidget.style.display = shown ? 'none' : 'block';
+                    // Check if there's a user rating for this movie to show correct button text
+                    const currentBtn = this;
+                    if (!shown && currentBtn.dataset.movieUserRating) {
+                        rateBtn.textContent = 'Cancel';
+                    } else if (!shown) {
+                        rateBtn.textContent = 'Cancel';
+                    } else {
+                        // When closing, check if movie has a rating
+                        const userRating = currentBtn.dataset.movieUserRating || '';
+                        rateBtn.textContent = userRating ? 'Rate Again' : 'Rate This Movie';
+                    }
+                });
+            }
+
+            // Delegated listener for View Details buttons
+            document.addEventListener('click', function(e) {
+                if (!e.target.classList.contains('view-details-btn')) return;
+                e.preventDefault();
+
+                const btn = e.target;
+                const movieId = btn.dataset.movieId || '';
+                const title = btn.dataset.movieTitle || 'Unknown';
+                const year = btn.dataset.movieYear || '';
+                const genre = btn.dataset.movieGenre || '';
+                const rating = btn.dataset.movieRating || 'Not rated';
+                const description = btn.dataset.movieDescription || '';
+                const poster = btn.dataset.moviePoster || '';
+
+                window.currentMovieId = movieId;
+
+                document.getElementById('modal-title').textContent = title;
+                document.getElementById('modal-year').textContent = year;
+                document.getElementById('modal-genre').textContent = genre;
+                document.getElementById('modal-rating').textContent = rating;
+                document.getElementById('modal-description').textContent = description;
+
+                const posterImg = document.getElementById('modal-poster');
+                if (poster) {
+                    posterImg.src = poster;
+                    posterImg.style.display = '';
+                } else {
+                    posterImg.style.display = 'none';
+                }
+
+                // Update rating form with current movie ID
+                if (ratingWidget) {
+                    ratingWidget.style.display = 'none';
+                    if (rateBtn) rateBtn.textContent = 'Rate This Movie';
+                    
+                    // Update form inputs to use current movie ID
+                    const starInputs = ratingWidget.querySelectorAll('input[type="radio"]');
+                    starInputs.forEach(input => {
+                        const name = input.getAttribute('name');
+                        input.setAttribute('name', `rating_${movieId}`);
+                    });
+                    // Update form action to post to the correct rate endpoint
+                    const ratingForm = ratingWidget.querySelector('form');
+                    if (ratingForm) {
+                        ratingForm.action = `/rate/${movieId}/`;
+                    }
+                    // Clear all star selections first (for unrated movies)
+                    starInputs.forEach(input => input.checked = false);
+                    
+                    // Check for user rating: first from cache (if just rated), then from data attribute
+                    let userRating = '';
+                    if (window.userRatingsCache && window.userRatingsCache[movieId]) {
+                        userRating = String(window.userRatingsCache[movieId]);
+                    } else {
+                        userRating = btn.dataset.movieUserRating || '';
+                    }
+                    
+                    if (userRating && starInputs.length && ratingForm) {
+                        const matched = Array.from(starInputs).find(i => i.value === String(userRating));
+                        if (matched) matched.checked = true;
+
+                        // change button text to indicate rating again
+                        if (rateBtn) rateBtn.textContent = 'Rate Again';
+
+                        // change submit button text to indicate update/retry
+                        const submitBtn = ratingForm.querySelector('button[type="submit"]');
+                        if (submitBtn) submitBtn.textContent = 'Update Rating';
+
+                        // show a small indicator above the widget
+                        let indicator = document.getElementById('modal-user-rating');
+                        if (!indicator) {
+                            indicator = document.createElement('div');
+                            indicator.id = 'modal-user-rating';
+                            indicator.style.color = '#a0a0a0';
+                            indicator.style.marginTop = '0.5rem';
+                            ratingWidget.parentNode.insertBefore(indicator, ratingWidget);
+                        }
+                        indicator.textContent = `You rated this ${userRating} star${userRating !== '1' ? 's' : ''}.`;
+                    } else if (ratingForm) {
+                        const submitBtn = ratingForm.querySelector('button[type="submit"]');
+                        if (submitBtn) submitBtn.textContent = 'Submit Rating';
+                        const existingIndicator = document.getElementById('modal-user-rating');
+                        if (existingIndicator) existingIndicator.remove();
+                    }
+                }
+
+                globalModal.style.display = 'flex';
+            });
+        })();
+
+        // Handle rating form submission via AJAX
+        (function() {
+            const ratingWidget = document.getElementById('modal-rating-widget');
+            if (!ratingWidget) return;
+            
+            ratingWidget.addEventListener('submit', async function(e) {
+                const form = e.target;
+                if (!form.classList.contains('rating-form')) return;
+                e.preventDefault();
+                
+                try {
+                    const formData = new FormData(form);
+                    const action = form.action;
+                    if (!action) return;
+                    
+                    const response = await fetch(action, {
+                        method: 'POST',
+                        credentials: 'same-origin',
+                        body: formData
+                    });
+                    
+                    if (!response.ok) {
+                        console.error('Rating submission failed', response.status);
+                        return;
+                    }
+                    
+                    // Extract rating value from form
+                    const ratingInput = form.querySelector('input[type="radio"]:checked');
+                    const ratingValue = ratingInput ? ratingInput.value : null;
+                    
+                    if (ratingValue) {
+                        // Update user_ratings in memory for this movie
+                        const movieId = window.currentMovieId;
+                        if (movieId) {
+                            // Store in a global cache so dashboard can access it
+                            if (!window.userRatingsCache) window.userRatingsCache = {};
+                            window.userRatingsCache[movieId] = parseInt(ratingValue);
+                            
+                            // Broadcast to other parts of the page
+                            window.dispatchEvent(new CustomEvent('movieRated', {
+                                detail: { movieId, rating: ratingValue }
+                            }));
+                        }
+                        
+                        // Show success feedback
+                        const submitBtn = form.querySelector('button[type="submit"]');
+                        if (submitBtn) {
+                            const originalText = submitBtn.textContent;
+                            submitBtn.textContent = 'Rating saved!';
+                            submitBtn.disabled = true;
+                            setTimeout(() => {
+                                submitBtn.textContent = originalText;
+                                submitBtn.disabled = false;
+                            }, 2000);
+                        }
+                        
+                        // Force a reload of top picks to remove this movie (it's no longer recommended after rating)
+                        if (window.reloadTopPicksNow) {
+                            window.reloadTopPicksNow();
+                        }
+                    }
+                } catch (err) {
+                    console.error('Rating submission error', err);
+                }
+            }, true); // Use capture phase to intercept before other handlers
+        })();
+
+        // Listen for movie rating events and update the movie card buttons
+        (function() {
+            window.addEventListener('movieRated', function(e) {
+                const { movieId, rating } = e.detail;
+                // Update all "More" buttons on the page that match this movie ID
+                document.querySelectorAll(`.view-details-btn[data-movie-id="${movieId}"]`).forEach(btn => {
+                    btn.setAttribute('data-movie-user-rating', rating);
+                });
+            });
+        })();
+
+        // Ensure CSRF token exists in the rating form before submit (prevents 403 when token missing)
+        (function(){
+            function getCookie(name) {
+                let cookieValue = null;
+                if (document.cookie && document.cookie !== '') {
+                    const cookies = document.cookie.split(';');
+                    for (let i = 0; i < cookies.length; i++) {
+                        const cookie = cookies[i].trim();
+                        if (cookie.substring(0, name.length + 1) === (name + '=')) {
+                            cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                            break;
+                        }
+                    }
+                }
+                return cookieValue;
+            }
+
+            document.addEventListener('submit', function(e){
+                const form = e.target;
+                if (!form.classList || !form.classList.contains('rating-form')) return;
+                // Prevent immediate submit, fetch a fresh token from server, then submit
+                e.preventDefault();
+                const submitBtn = form.querySelector('button[type="submit"]');
+                if (submitBtn) {
+                    submitBtn.disabled = true;
+                    const origText = submitBtn.textContent;
+                    submitBtn.textContent = 'Submitting...';
+                }
+
+                fetch('{% url "csrf_token" %}', { credentials: 'same-origin' })
+                    .then(res => res.json())
+                    .then(data => {
+                        const token = data && data.csrfToken ? data.csrfToken : null;
+                        if (!token) throw new Error('No CSRF token');
+
+                        // Build form data and POST via fetch so we can handle response inline
+                        const action = form.getAttribute('action') || window.location.pathname;
+                        const formData = new FormData(form);
+                        // ensure token present in formData
+                        formData.set('csrfmiddlewaretoken', token);
+
+                        return fetch(action, {
+                            method: 'POST',
+                            credentials: 'same-origin',
+                            headers: {
+                                'X-Requested-With': 'XMLHttpRequest'
+                            },
+                            body: formData,
+                        });
+                    })
+                    .then(response => {
+                        const submitBtn2 = form.querySelector('button[type="submit"]');
+                        if (submitBtn2) {
+                            submitBtn2.disabled = false;
+                            submitBtn2.textContent = 'Submit Rating';
+                        }
+                        if (!response.ok) {
+                            return response.text().then(text => { throw new Error('Server error: ' + (text || response.status)); });
+                        }
+                        // Parse JSON response to get updated average rating
+                        return response.json().then(data => {
+                            // Success — update UI: show indicator and update button text
+                            const ratingWidget = document.getElementById('modal-rating-widget');
+                            const movieId = window.currentMovieId;
+                            // read selected value
+                            const checked = form.querySelector('input[type="radio"]:checked');
+                            const value = checked ? checked.value : null;
+                            if (value) {
+                                // update the view button text
+                                const submitBtn3 = form.querySelector('button[type="submit"]');
+                                if (submitBtn3) submitBtn3.textContent = 'Update Rating';
+
+                                // show a small confirmation indicator
+                                let indicator = document.getElementById('modal-user-rating');
+                                if (!indicator && ratingWidget) {
+                                    indicator = document.createElement('div');
+                                    indicator.id = 'modal-user-rating';
+                                    indicator.style.color = '#a0a0a0';
+                                    indicator.style.marginTop = '0.5rem';
+                                    ratingWidget.parentNode.insertBefore(indicator, ratingWidget);
+                                }
+                                if (indicator) indicator.textContent = `You rated this ${value} star${value !== '1' ? 's' : ''}.`;
+
+                                // Update the average rating display in the modal
+                                const modalRatingSpan = document.getElementById('modal-rating');
+                                if (modalRatingSpan && data.average_rating !== undefined) {
+                                    if (data.average_rating > 0) {
+                                        modalRatingSpan.textContent = data.average_rating;
+                                    } else {
+                                        modalRatingSpan.textContent = 'Not rated';
+                                    }
+                                }
+
+                                // Also update the movie card's data attribute so future opens reflect the rating
+                                if (movieId) {
+                                    const cardBtn = document.querySelector(`button.view-details-btn[data-movie-id="${movieId}"]`);
+                                    if (cardBtn) {
+                                        cardBtn.dataset.movieUserRating = value;
+                                        // Update the movie rating data attribute if average rating is provided
+                                        if (data.average_rating !== undefined) {
+                                            if (data.average_rating > 0) {
+                                                cardBtn.dataset.movieRating = data.average_rating;
+                                            } else {
+                                                cardBtn.dataset.movieRating = 'Not rated';
+                                            }
+                                        }
+                                    }
+                                    // Also update the movie card's rating text in the list
+                                    const movieCard = document.querySelector(`.movie-card button.view-details-btn[data-movie-id="${movieId}"]`);
+                                    if (movieCard && movieCard.parentElement) {
+                                        const ratingP = movieCard.parentElement.querySelector('.movie-rating');
+                                        if (ratingP && data.average_rating !== undefined) {
+                                            if (data.average_rating > 0) {
+                                                ratingP.textContent = 'Rating: ' + data.average_rating;
+                                            } else {
+                                                ratingP.textContent = 'Rating: Not rated';
+                                            }
+                                        }
+                                    }
+                                }
+                            }
+                        });
+                    })
+                    .catch(err => {
+                        console.error('Rating submit failed', err);
+                        alert('Unable to save rating right now. Please try again.');
+                        const submitBtn3 = form.querySelector('button[type="submit"]');
+                        if (submitBtn3) {
+                            submitBtn3.disabled = false;
+                            submitBtn3.textContent = 'Submit Rating';
+                        }
+                    });
+            });
+        })();
+    </script>
+    <script>
+        // Genre filter dropdown toggle & client-side filtering
+        (function(){
+            const filterRoot = document.getElementById('genre-filter');
+            const btn = document.getElementById('genre-filter-btn');
+            const dropdown = document.getElementById('genre-dropdown');
+            const form = dropdown ? dropdown.querySelector('form') : null;
+            const select = form ? form.querySelector('select[name="genre"]') : null;
+            if (!filterRoot || !btn || !dropdown) return;
+
+            // On page load, sync the dropdown to the URL genre parameter
+            const urlParams = new URLSearchParams(window.location.search);
+            const urlGenre = (urlParams.get('genre') || '').toString().trim();
+            if (urlGenre && select) {
+                // Set the select value to match URL param
+                select.value = urlGenre;
+            }
+
+            function open() {
+                filterRoot.classList.add('open');
+                btn.setAttribute('aria-expanded','true');
+                dropdown.setAttribute('aria-hidden','false');
+            }
+            function close() {
+                filterRoot.classList.remove('open');
+                btn.setAttribute('aria-expanded','false');
+                dropdown.setAttribute('aria-hidden','true');
+            }
+
+            btn.addEventListener('click', function(e){
+                e.stopPropagation();
+                if (filterRoot.classList.contains('open')) close(); else open();
+            });
+
+            // Close when clicking outside
+            document.addEventListener('click', function(e){
+                if (!filterRoot.contains(e.target)) close();
+            });
+
+            // Intercept form submit for client-side genre filtering (no full page reload)
+            if (form) {
+                form.addEventListener('submit', function(e){
+                    e.preventDefault();
+                    const formData = new FormData(form);
+                    const genre = (formData.get('genre') || '').toString().trim();
+                    const q = (formData.get('q') || '').toString().trim();
+                    const url = new URL(window.location.href);
+                    
+                    // Update URL params
+                    if (genre) url.searchParams.set('genre', genre); else url.searchParams.delete('genre');
+                    if (q) url.searchParams.set('q', q); else url.searchParams.delete('q');
+                    
+                    // Update address bar for back/forward compatibility
+                    window.history.pushState({}, '', url.toString());
+                    
+                    // Close dropdown
+                    close();
+                    
+                    // Apply client-side filtering
+                    try { window.applySearchFilter(); } catch(_) {}
+                });
+            }
+        })();
+    </script>
+    <script>
+        // Theme toggle: initialize from localStorage and persist choice
+        (function(){
+            const btn = document.getElementById('theme-toggle-btn');
+            if (!btn) return;
+            const iconSun = document.getElementById('theme-icon-sun');
+            const iconMoon = document.getElementById('theme-icon-moon');
+
+            function applyTheme(t) {
+                if (t === 'light') {
+                    document.documentElement.classList.add('theme-light');
+                    btn.setAttribute('aria-pressed','true');
+                    if (iconSun) iconSun.style.display = '';
+                    if (iconMoon) iconMoon.style.display = 'none';
+                } else {
+                    document.documentElement.classList.remove('theme-light');
+                    btn.setAttribute('aria-pressed','false');
+                    if (iconSun) iconSun.style.display = 'none';
+                    if (iconMoon) iconMoon.style.display = '';
+                }
+            }
+
+            const stored = localStorage.getItem('theme');
+            if (stored) applyTheme(stored);
+            else {
+                // Respect OS preference if no stored choice
+                const prefersLight = window.matchMedia && window.matchMedia('(prefers-color-scheme: light)').matches;
+                applyTheme(prefersLight ? 'light' : 'dark');
+            }
+
+            btn.addEventListener('click', () => {
+                const isLight = document.documentElement.classList.contains('theme-light');
+                const next = isLight ? 'dark' : 'light';
+                applyTheme(next);
+                localStorage.setItem('theme', next);
+            });
+        })();
+    </script>
+    <script>
+        // Diagnostic: verify server-side session user matches the rendered user.
+        (function(){
+            const renderedUser = '{{ user.username|default:"" }}';
+            // Only run when a user appears to be logged in client-side
+            if (!renderedUser) return;
+
+            fetch('{% url "whoami" %}', { credentials: 'same-origin' })
+                .then(r => r.json())
+                .then(data => {
+                    if (!data) return;
+                    const serverUser = data.username || '';
+                    if (serverUser && serverUser !== renderedUser) {
+                        // Show a non-intrusive warning to help the user diagnose sessions.
+                        const warn = document.createElement('div');
+                        warn.style.position = 'fixed';
+                        warn.style.right = '1rem';
+                        warn.style.bottom = '1rem';
+                        warn.style.background = '#332';
+                        warn.style.color = '#fff';
+                        warn.style.padding = '0.6rem 0.8rem';
+                        warn.style.borderRadius = '6px';
+                        warn.style.boxShadow = '0 2px 8px rgba(0,0,0,0.4)';
+                        warn.style.zIndex = '9999';
+                        warn.textContent = `Session mismatch: server sees '${serverUser}' but page shows '${renderedUser}'. Please clear cookies or logout and login again.`;
+                        const btn = document.createElement('button');
+                        btn.textContent = 'Logout';
+                        btn.style.marginLeft = '0.6rem';
+                        btn.style.background = '#E53935';
+                        btn.style.border = 'none';
+                        btn.style.color = '#fff';
+                        btn.style.padding = '0.2rem 0.5rem';
+                        btn.style.borderRadius = '4px';
+                        btn.addEventListener('click', function(){ window.location.href = '{% url "logout" %}'; });
+                        warn.appendChild(btn);
+                        document.body.appendChild(warn);
+                    }
+                })
+                .catch(err => {
+                    // ignore diagnostics failures
+                    console.debug('whoami check failed', err);
+                });
+        })();
+    </script>
+    <script>
+        // Server-provided recommended movies cache (fast lookup on client)
+        // This is rendered from the `recommended_movies` context variable.
+        window.__recommendedMovies = window.__recommendedMovies || {};
+        {% for m in recommended_movies %}
+            (function(){
+                try {
+                    window.__recommendedMovies[{{ m.id }}] = {
+                        id: {{ m.id }},
+                        title: "{{ m.title|escapejs }}",
+                        genre: "{{ m.genre|default:''|escapejs }}",
+                        release_year: {{ m.release_year|default:'null' }},
+                        description: "{{ m.description|default:''|escapejs }}",
+                        poster: "{% if m.poster %}{{ m.poster.url }}{% else %}{% endif %}"
+                    };
+                } catch(_) {}
+            })();
+        {% endfor %}
+    </script>
+    <script>
+        // Listen for admin broadcasts of newly added movies (cross-tab)
+        // Define createMovieCard and addMovieToList functions globally so polling can use them
+        window.createMovieCard = function(data) {
+            try {
+                if (!data || !data.id) {
+                    console.debug('createMovieCard: no data or id');
+                    return null;
+                }
+                // avoid duplicates in the All Movies list only (Top Picks may duplicate)
+                // Movies can exist in both All Movies AND Top Picks; when adding to All Movies
+                // we should avoid adding duplicates only when a card already exists in `.movie-list`.
+                if (document.querySelector(`.movie-list .movie-card button.view-details-btn[data-movie-id="${data.id}"]`)) {
+                    console.debug('createMovieCard: movie id', data.id, 'already exists in .movie-list, returning null to avoid duplicate');
+                    return null;
+                }
+
+                const card = document.createElement('div');
+                card.className = 'movie-card';
+                // Expose dataset attributes so other client-side logic (search, top-picks)
+                // can read title/genre/id reliably without querying DOM text nodes.
+                try {
+                    if (data.id) card.dataset.movieId = String(data.id);
+                    if (data.title) card.dataset.movieTitle = String(data.title);
+                    if (data.genre) card.dataset.movieGenre = String(data.genre);
+                    // default original display for newly created cards (will be overridden during init)
+                    card.dataset.originalDisplay = card.dataset.originalDisplay || 'flex';
+                } catch (_) {}
+
+                if (data.poster) {
+                    const img = document.createElement('img');
+                    img.src = data.poster;
+                    img.alt = data.title || '';
+                    img.className = 'poster';
+                    card.appendChild(img);
+                } else {
+                    const ph = document.createElement('div');
+                    ph.className = 'poster poster-placeholder';
+                    ph.textContent = 'No Image';
+                    card.appendChild(ph);
+                }
+
+                const h4 = document.createElement('h4'); h4.textContent = data.title || 'Untitled'; card.appendChild(h4);
+                const pYear = document.createElement('p'); pYear.innerHTML = `<small>${data.release_year || ''}</small>`; card.appendChild(pYear);
+                const pGenre = document.createElement('p'); pGenre.textContent = data.genre || ''; card.appendChild(pGenre);
+                // Determine rating to display: prefer average_rating then rating
+                const ratingValRaw = (typeof data.average_rating !== 'undefined' && data.average_rating !== null) ? data.average_rating : (typeof data.rating !== 'undefined' ? data.rating : null);
+                let ratingVal = NaN;
+                if (ratingValRaw !== null) {
+                    ratingVal = Number(ratingValRaw);
+                }
+                const pRating = document.createElement('p');
+                pRating.className = 'movie-rating';
+                if (!isNaN(ratingVal) && ratingVal > 0) {
+                    pRating.textContent = 'Rating: ' + ratingVal;
+                } else {
+                    pRating.textContent = 'Rating: Not rated';
+                }
+                card.appendChild(pRating);
+
+                const btn = document.createElement('button');
+                btn.className = 'btn btn-small view-details-btn more-btn';
+                btn.setAttribute('aria-label', `More details for ${data.title || ''}`);
+                btn.setAttribute('data-movie-id', data.id);
+                btn.setAttribute('data-movie-title', data.title || '');
+                btn.setAttribute('data-movie-year', data.release_year || '');
+                btn.setAttribute('data-movie-genre', data.genre || '');
+                btn.setAttribute('data-movie-rating', (!isNaN(ratingVal) && ratingVal > 0) ? String(ratingVal) : 'Not rated');
+                btn.setAttribute('data-movie-description', data.description || '');
+                if (data.poster) btn.setAttribute('data-movie-poster', data.poster);
+                btn.textContent = 'More';
+                card.appendChild(btn);
+
+                console.debug('createMovieCard: SUCCESS created card for movie', data.id);
+                return card;
+            } catch (err) {
+                console.debug('createMovieCard EXCEPTION:', err);
+                return null;
+            }
+        };
+
+        // Temporary visual debug notice (helps verify events across tabs)
+        window.showTempNotice = function(msg, timeout=4000) {
+            try {
+                let n = document.getElementById('moviehub-debug-notice');
+                if (!n) {
+                    n = document.createElement('div');
+                    n.id = 'moviehub-debug-notice';
+                    n.style.position = 'fixed';
+                    n.style.right = '1rem';
+                    n.style.top = '1rem';
+                    n.style.zIndex = '99999';
+                    n.style.background = 'rgba(0,0,0,0.85)';
+                    n.style.color = '#fff';
+                    n.style.padding = '0.5rem 0.8rem';
+                    n.style.borderRadius = '6px';
+                    n.style.boxShadow = '0 2px 8px rgba(0,0,0,0.4)';
+                    document.body.appendChild(n);
+                }
+                n.textContent = msg;
+                n.style.display = 'block';
+                setTimeout(() => { try { n.style.display = 'none'; } catch(_){} }, timeout);
+            } catch(_){}
+        };
+        window.addMovieToList = function(data) {
+            const list = document.querySelector('.movie-list');
+            if (!list) return;
+            const card = window.createMovieCard(data);
+            if (!card) return;
+            // insert at top
+            list.insertBefore(card, list.firstChild);
+            console.debug('Added movie to list:', data.title);
+            // If a search is active, re-apply the client-side filter so the new
+            // restored/added movie doesn't break the user's filtered view.
+            try {
+                const searchActive = (typeof window.isSearchActive === 'function') ? window.isSearchActive() : false;
+                if (typeof window.applySearchFilter === 'function' && searchActive) {
+                    window.applySearchFilter();
+                }
+            } catch(_) {}
+        };
+
+        // Add a movie to the Top Picks horizontal row (if present)
+        window.addMovieToTopPicks = function(data) {
+            console.debug('>>> addMovieToTopPicks called with:', data);
+            try {
+                const row = document.querySelector('.top-picks-row');
+                console.debug('>>> row found:', !!row);
+                if (!row || !data || !data.id) {
+                    console.debug('addMovieToTopPicks: row or data missing', { row: !!row, data: !!data, id: data?.id });
+                    return;
+                }
+                // Check if movie already exists in Top Picks
+                const existingInTopPicks = row.querySelector(`button.view-details-btn[data-movie-id="${data.id}"]`);
+                console.debug('>>> existing in top picks:', !!existingInTopPicks);
+                if (existingInTopPicks) {
+                    console.debug('addMovieToTopPicks: movie', data.id, 'already in top picks');
+                    return;
+                }
+                // Remove empty-state placeholder if present
+                const emptyState = row.querySelector('.empty-state');
+                console.debug('>>> empty state div found:', !!emptyState);
+                if (emptyState) {
+                    console.debug('addMovieToTopPicks: removing empty state');
+                    emptyState.remove();
+                }
+                console.debug('>>> creating wrapper div');
+                const wrapper = document.createElement('div');
+                wrapper.className = 'top-picks-wrapper';
+
+                // First try to clone an existing card from All Movies (to avoid duplicate creation issues)
+                const existingCard = document.querySelector(`.movie-list button.view-details-btn[data-movie-id="${data.id}"]`)?.closest('.movie-card');
+                if (existingCard) {
+                    console.debug('>>> cloning existing card from All Movies');
+                    const clonedCard = existingCard.cloneNode(true);
+                    wrapper.appendChild(clonedCard);
+                } else {
+                    console.debug('>>> creating new card (not found in All Movies)');
+                    const card = window.createMovieCard(data);
+                    console.debug('>>> card created:', !!card);
+                    if (!card) {
+                        console.debug('addMovieToTopPicks: failed to create card');
+                        return;
+                    }
+                    wrapper.appendChild(card);
+                }
+                console.debug('>>> inserting wrapper into row');
+                row.insertBefore(wrapper, row.firstChild);
+                console.debug('>>> SUCCESS: Added movie to top picks:', data.title, 'id:', data.id);
+            } catch (err) {
+                console.debug('addMovieToTopPicks EXCEPTION:', err);
+            }
+        };
+
+        // Decide whether a movie should be added to Top Picks for this client.
+        // Priority: if the client previously had it in Top Picks (localStorage marker),
+        // re-add immediately. Otherwise consult the server API which runs the
+        // recommendation logic for the current user.
+        window.maybeAddToTopPicks = function(data) {
+            if (!data || !data.id) return;
+            console.debug('maybeAddToTopPicks called for movie:', data.id, data.title);
+            
+            // Always verify with server whether this movie is recommended
+            // Don't rely on localStorage flags or page-load cached data
+            fetch(`/api/movies/is_recommended/?movie_id=${data.id}`, { credentials: 'same-origin' })
+                .then(r => {
+                    console.debug('is_recommended response status:', r.status);
+                    return r.json();
+                })
+                .then(j => {
+                    console.debug('is_recommended response:', j);
+                    try {
+                        if (j && j.recommended === true) {
+                            const payload = j.id ? j : data;
+                            console.debug('SERVER CONFIRMS RECOMMENDED - Adding to Top Picks:', payload.id);
+                            window.addMovieToTopPicks(payload);
+                            // Reapply filter to new Top Picks card if a filter is active
+                            try { window.applySearchFilter(); } catch(_) {}
+                        } else {
+                            console.debug('SERVER SAYS NOT RECOMMENDED - Will NOT add:', data.id);
+                        }
+                    } catch (err) { console.debug('maybeAddToTopPicks add failed', err); }
+                })
+                .catch(err => console.debug('maybeAddToTopPicks check failed', err));
+        };
+
+        (function(){
+            // Cache original display values for cards and top-picks wrappers so
+            // we can restore them when showing results instead of forcing 'flex'.
+            (function cacheOriginalDisplays(){
+                try {
+                    document.querySelectorAll('.movie-card').forEach(c => {
+                        try {
+                            if (!c.dataset.originalDisplay) {
+                                const comp = window.getComputedStyle(c).display || 'flex';
+                                c.dataset.originalDisplay = comp;
+                            }
+                        } catch(_){}
+                    });
+                    document.querySelectorAll('.top-picks-row > div').forEach(w => {
+                        try {
+                            if (!w.dataset.originalDisplay) {
+                                const comp = window.getComputedStyle(w).display || 'flex';
+                                w.dataset.originalDisplay = comp;
+                            }
+                        } catch(_){}
+                    });
+                } catch(_){}
+            })();
+
+            // Apply client-side search filter to hide non-matching cards
+            window.applySearchFilter = function() {
+                try {
+                    try { console.debug('applySearchFilter called', window.location.search); } catch(_){}
+                    // Prefer reading the nav search input value when available (more immediate)
+                    let q = '';
+                    let genre = '';
+                    try {
+                        const input = document.querySelector('.nav-search-form .search-input');
+                        if (input && input.value != null && String(input.value).trim() !== '') {
+                            q = String(input.value).trim().toLowerCase();
+                        } else {
+                            const params = new URLSearchParams(window.location.search);
+                            q = (params.get('q') || '').trim().toLowerCase();
+                            genre = (params.get('genre') || '').trim().toLowerCase();
+                        }
+                    } catch (e) {
+                        const params = new URLSearchParams(window.location.search);
+                        q = (params.get('q') || '').trim().toLowerCase();
+                        genre = (params.get('genre') || '').trim().toLowerCase();
+                    }
+                    const tokens = q ? q.split(/\s+/).filter(Boolean) : [];
+                    let visibleCount = 0, hiddenCount = 0;
+                    document.querySelectorAll('.movie-card').forEach(card => {
+                        try {
+                            // Use data attributes when available (more reliable than querying text nodes)
+                            const title = (card.dataset && card.dataset.movieTitle) ? card.dataset.movieTitle.toLowerCase() : (card.querySelector('h4')?.textContent || '').toLowerCase();
+                            const g = (card.dataset && card.dataset.movieGenre) ? card.dataset.movieGenre.toLowerCase() : (Array.from(card.querySelectorAll('p')).map(p=>p.textContent).join(' ') || '').toLowerCase();
+                            let matches = true;
+                            if (tokens.length) {
+                                for (const t of tokens) {
+                                    if (!(title.includes(t) || g.includes(t))) { matches = false; break; }
+                                }
+                            }
+                            if (genre) {
+                                if (!g.includes(genre)) matches = false;
+                            }
+                            // Use setProperty with 'important' so we reliably override
+                            // stylesheet rules that use !important (the CSS sets display:flex !important)
+                            try {
+                                const showDisp = card.dataset.originalDisplay || 'flex';
+                                if (matches) {
+                                    card.style.setProperty('display', showDisp, 'important');
+                                    visibleCount++;
+                                } else {
+                                    card.style.setProperty('display', 'none', 'important');
+                                    hiddenCount++;
+                                }
+                            } catch(e) {
+                                const showDisp = card.dataset.originalDisplay || 'flex';
+                                if (matches) { card.style.display = showDisp; visibleCount++; }
+                                else { card.style.display = 'none'; hiddenCount++; }
+                            }
+                        } catch(e){ console.debug('applySearchFilter: card error', e); }
+                    });
+                    try { console.debug('applySearchFilter: visible=', visibleCount, 'hidden=', hiddenCount); } catch(_){}
+                    
+                    // Also filter Top Picks wrappers
+                    try {
+                        document.querySelectorAll('.top-picks-row > div').forEach(wrapper => {
+                            try {
+                                const card = wrapper.querySelector('.movie-card');
+                                if (!card) return;
+                                const title = (card.dataset && card.dataset.movieTitle) ? card.dataset.movieTitle.toLowerCase() : (card.querySelector('h4')?.textContent||'').toLowerCase();
+                                const g = (card.dataset && card.dataset.movieGenre) ? card.dataset.movieGenre.toLowerCase() : (card.querySelector('p')?.textContent||'').toLowerCase();
+                                let matches = true;
+                                if (tokens.length) {
+                                    for (const t of tokens) { if (!(title.includes(t) || g.includes(t))) { matches = false; break; } }
+                                }
+                                if (genre && !g.includes(genre)) matches = false;
+                                if (matches) {
+                                    wrapper.style.display = '';
+                                } else {
+                                    wrapper.style.display = 'none';
+                                }
+                            } catch(_){}
+                        });
+                    } catch(_){}
+                } catch(_){}
+            };
+            // Intercept the nav search form to apply client-side filtering without reload
+            (function(){
+                const searchForm = document.querySelector('.nav-search-form');
+                if (!searchForm) return;
+                searchForm.addEventListener('submit', function(e){
+                    e.preventDefault();
+                    const formData = new FormData(searchForm);
+                    const q = (formData.get('q') || '').toString().trim();
+                    const url = new URL(window.location.href);
+                    if (q) url.searchParams.set('q', q); else url.searchParams.delete('q');
+                    // update address bar so back/forward works
+                    window.history.pushState({}, '', url.toString());
+                    // run client-side filter
+                    try { window.applySearchFilter(); } catch(_) {}
+                    // Also filter Top Picks row wrappers
+                    try {
+                        const tokens = q ? q.toLowerCase().split(/\s+/).filter(Boolean) : [];
+                        const genre = (url.searchParams.get('genre') || '').toLowerCase();
+                        document.querySelectorAll('.top-picks-row > div').forEach(wrapper => {
+                            try {
+                                const card = wrapper.querySelector('.movie-card');
+                                if (!card) { wrapper.classList.remove('filtered-out'); return; }
+                                const title = (card.dataset && card.dataset.movieTitle) ? card.dataset.movieTitle.toLowerCase() : (card.querySelector('h4')?.textContent||'').toLowerCase();
+                                const g = (card.dataset && card.dataset.movieGenre) ? card.dataset.movieGenre.toLowerCase() : (card.querySelector('p')?.textContent||'').toLowerCase();
+                                let matches = true;
+                                if (tokens.length) {
+                                    for (const t of tokens) { if (!(title.includes(t) || g.includes(t))) { matches = false; break; } }
+                                }
+                                if (genre && !g.includes(genre)) matches = false;
+                                if (matches) {
+                                    wrapper.classList.remove('filtered-out');
+                                } else {
+                                    wrapper.classList.add('filtered-out');
+                                }
+                            } catch(_){}
+                        });
+                    } catch(_){}
+                });
+                // Also support live filtering as the user types (debounced)
+                try {
+                    const input = searchForm.querySelector('.search-input');
+                    if (input) {
+                        let debounceTimer = null;
+                        const doFilter = () => {
+                            const q = (input.value || '').toString().trim();
+                            const url = new URL(window.location.href);
+                            if (q) url.searchParams.set('q', q); else url.searchParams.delete('q');
+                            window.history.replaceState({}, '', url.toString());
+                            try { window.applySearchFilter(); } catch(_) {}
+                            // also filter Top Picks
+                            try {
+                                const tokens = q ? q.toLowerCase().split(/\s+/).filter(Boolean) : [];
+                                const genre = (url.searchParams.get('genre') || '').toLowerCase();
+                                document.querySelectorAll('.top-picks-row > div').forEach(wrapper => {
+                                    try {
+                                        const card = wrapper.querySelector('.movie-card');
+                                        if (!card) return;
+                                        const title = (card.dataset && card.dataset.movieTitle) ? card.dataset.movieTitle.toLowerCase() : (card.querySelector('h4')?.textContent||'').toLowerCase();
+                                        const g = (card.dataset && card.dataset.movieGenre) ? card.dataset.movieGenre.toLowerCase() : (card.querySelector('p')?.textContent||'').toLowerCase();
+                                        let matches = true;
+                                        if (tokens.length) {
+                                            for (const t of tokens) { if (!(title.includes(t) || g.includes(t))) { matches = false; break; } }
+                                        }
+                                        if (genre && !g.includes(genre)) matches = false;
+                                        if (matches) {
+                                            wrapper.classList.remove('filtered-out');
+                                            wrapper.style.display = '';
+                                        } else {
+                                            wrapper.classList.add('filtered-out');
+                                            wrapper.style.display = 'none';
+                                        }
+                                    } catch(_){}
+                                });
+                            } catch(_){}
+                        };
+
+                        input.addEventListener('input', function(){
+                            if (debounceTimer) clearTimeout(debounceTimer);
+                            debounceTimer = setTimeout(doFilter, 250);
+                        });
+
+                        input.addEventListener('keyup', function(e){
+                            if (e.key === 'Enter') {
+                                if (debounceTimer) { clearTimeout(debounceTimer); debounceTimer = null; }
+                                doFilter();
+                            }
+                        });
+                    }
+                } catch(_){}
+
+                // Apply filter on page load if q/genre already present in URL
+                try {
+                    const params = new URLSearchParams(window.location.search);
+                    if (params.get('q') || params.get('genre')) {
+                        try { window.applySearchFilter(); } catch(_){}
+                        // also apply to top picks wrappers
+                        const evtInput = document.querySelector('.nav-search-form .search-input');
+                        if (evtInput) { evtInput.value = params.get('q') || ''; }
+                        try {
+                            const q = (params.get('q') || '').toLowerCase();
+                            const tokens = q ? q.split(/\s+/).filter(Boolean) : [];
+                            const genre = (params.get('genre') || '').toLowerCase();
+                            document.querySelectorAll('.top-picks-row > div').forEach(wrapper => {
+                                try {
+                                    const card = wrapper.querySelector('.movie-card');
+                                    if (!card) return;
+                                    const title = (card.dataset && card.dataset.movieTitle) ? card.dataset.movieTitle.toLowerCase() : (card.querySelector('h4')?.textContent||'').toLowerCase();
+                                    const g = (card.dataset && card.dataset.movieGenre) ? card.dataset.movieGenre.toLowerCase() : (card.querySelector('p')?.textContent||'').toLowerCase();
+                                    let matches = true;
+                                    if (tokens.length) {
+                                        for (const t of tokens) { if (!(title.includes(t) || g.includes(t))) { matches = false; break; } }
+                                    }
+                                    if (genre && !g.includes(genre)) matches = false;
+                                    if (matches) {
+                                        wrapper.classList.remove('filtered-out');
+                                        wrapper.style.display = '';
+                                    } else {
+                                        wrapper.classList.add('filtered-out');
+                                        wrapper.style.display = 'none';
+                                    }
+                                } catch(_){}
+                            });
+                        } catch(_){}
+                    }
+                } catch(_){}
+            })();
+            // Listen for custom events from admin dashboard (same window)
+            window.addEventListener('moviehub:archived', function(e) {
+                console.debug('Custom event: moviehub:archived', e.detail);
+                const data = e.detail;
+                if (data && data.id) {
+                    const buttons = document.querySelectorAll(`.movie-card button.view-details-btn[data-movie-id="${data.id}"]`);
+                    console.debug(`ARCHIVE EVENT: Found ${buttons.length} card(s) with movie ID ${data.id}`);
+                    buttons.forEach(btn => {
+                        const card = btn.closest('.movie-card');
+                        if (card) {
+                            console.debug('ARCHIVE: Removing card for movie', data.id);
+                            // Archive the movie - remove from UI
+                            card.style.transition = 'opacity 0.3s ease';
+                            card.style.opacity = '0';
+                            setTimeout(() => { 
+                                try { 
+                                    // First try to remove from Top Picks (look for parent wrapper)
+                                    const topPicksRow = document.querySelector('.top-picks-row');
+                                    if (topPicksRow && topPicksRow.contains(card)) {
+                                        console.debug('ARCHIVE: Found card in Top Picks, removing wrapper');
+                                        const wrapper = card.parentElement;
+                                        if (wrapper && wrapper !== card) {
+                                            wrapper.remove();
+                                        } else {
+                                            card.remove();
+                                        }
+                                    } else {
+                                        console.debug('ARCHIVE: Found card in All Movies, removing');
+                                        card.remove();
+                                    }
+                                } catch(e) {
+                                    console.debug('ARCHIVE: Error removing card:', e);
+                                }
+                            }, 300);
+                        }
+                    });
+                }
+            });
+
+            // Listen for restore custom events (same window)
+            window.addEventListener('moviehub:restored', function(e) {
+                console.debug('==== RESTORE EVENT FIRED ====');
+                console.debug('Custom event: moviehub:restored', e.detail);
+                const data = e.detail;
+                console.debug('data.id:', data?.id, 'data.title:', data?.title);
+                if (data && data.id) {
+                    console.debug('RESTORE: Triggering immediate fast polling');
+                    // Trigger immediate fast polling to detect the restored movie
+                    if (window.triggerFastPolling) {
+                        try {
+                            window.triggerFastPolling();
+                            console.debug('RESTORE: Fast polling triggered successfully');
+                        } catch(e) {
+                            console.debug('RESTORE: triggerFastPolling threw:', e);
+                        }
+                    } else {
+                        console.debug('RESTORE: triggerFastPolling not available');
+                    }
+                }
+            });
+
+            // BroadcastChannel listener for more reliable cross-tab messages
+            try {
+                if (typeof BroadcastChannel !== 'undefined') {
+                    const bc = new BroadcastChannel('moviehub');
+                    bc.addEventListener('message', function(msg) {
+                        try {
+                            const payload = msg && msg.data ? msg.data : null;
+                            if (!payload || payload.type !== 'restored' || !payload.data) return;
+                            console.debug('BroadcastChannel received restored:', payload.data);
+                            // Mirror behavior of storage handler: add immediately
+                            const data = payload.data;
+                            const id = parseInt(data.id);
+                            if (id && typeof window.addMovieToList === 'function') {
+                                if (!window.displayedMovieIds) window.displayedMovieIds = new Set();
+                                const displayedSet = window.displayedMovieIds;
+                                console.debug('BroadcastChannel: restored id', id, 'displayed?', displayedSet.has(id));
+                                if (!displayedSet.has(id)) {
+                                    const movieObj = {
+                                        id: id,
+                                        title: data.title || '',
+                                        genre: data.genre || '',
+                                        release_year: data.release_year || '',
+                                        description: data.description || '',
+                                        poster: data.poster || ''
+                                    };
+                                    try { window.addMovieToList(movieObj); console.debug('BroadcastChannel: added movie to DOM', id); } catch(_){ console.debug('BroadcastChannel: addMovieToList failed', _); }
+                                    try { if (typeof window.maybeAddToTopPicks === 'function') window.maybeAddToTopPicks(movieObj); } catch(_){ }
+                                    try { displayedSet.add(id); if (id > lastMovieId) lastMovieId = id; } catch(_){ }
+                                }
+                            }
+                        } catch(e) { console.debug('BroadcastChannel handler failed', e); }
+                    });
+                }
+            } catch(e) { console.debug('BroadcastChannel init failed', e); }
+
+            window.addEventListener('storage', function(e){
+                console.debug('>>> STORAGE EVENT FIRED, key:', e?.key, 'newValue:', e?.newValue?.substring?.(0, 50));
+                if (!e || !e.key) return;
+                
+                // Detect admin activity signal (triggers fast polling)
+                if (e.key === 'moviehub:admin-activity') {
+                    console.debug('Admin activity detected, triggering fast polling');
+                    if (window.triggerFastPolling) {
+                        window.triggerFastPolling();
+                    }
+                    return;
+                }
+                
+                // Handle archived movies - remove from user list
+                if (e.key === 'moviehub:movie-archived') {
+                    console.debug('storage event for moviehub:movie-archived', e.newValue);
+                    if (!e.newValue) return;
+                    try {
+                        const data = JSON.parse(e.newValue);
+                        console.debug('parsed archived data', data);
+                        // Find and remove all cards with this movie ID
+                        const buttons = document.querySelectorAll(`.movie-card button.view-details-btn[data-movie-id="${data.id}"]`);
+                        console.debug(`Found ${buttons.length} card(s) with movie ID ${data.id}`);
+                        buttons.forEach(btn => {
+                            const card = btn.closest('.movie-card');
+                            if (card) {
+                                const inTopPicks = !!card.closest('.top-picks-row');
+                                card.style.transition = 'opacity 0.3s ease';
+                                card.style.opacity = '0';
+                                setTimeout(() => { 
+                                    try { 
+                                        // First try to remove from Top Picks (look for parent wrapper)
+                                        const topPicksRow = document.querySelector('.top-picks-row');
+                                        if (topPicksRow && topPicksRow.contains(card)) {
+                                            console.debug('STORAGE: Found card in Top Picks, removing wrapper');
+                                            const wrapper = card.parentElement;
+                                            if (wrapper && wrapper !== card) {
+                                                wrapper.remove();
+                                            } else {
+                                                card.remove();
+                                            }
+                                        } else {
+                                            console.debug('STORAGE: Found card in All Movies, removing');
+                                            card.remove();
+                                        }
+                                    } catch(e) {
+                                        console.debug('STORAGE: Error removing card:', e);
+                                    }
+                                }, 300);
+                                console.debug('Removed card for archived movie:', data.title, 'inTopPicks=', inTopPicks);
+                            }
+                        });
+                    } catch (err) {
+                        console.debug('handle archived event failed', err);
+                    }
+                    return;
+                }
+                
+                // Handle deleted movies - remove from user list (permanently deleted from archive)
+                if (e.key === 'moviehub:movie-deleted') {
+                    console.debug('storage event for moviehub:movie-deleted', e.newValue);
+                    if (!e.newValue) return;
+                    try {
+                        const data = JSON.parse(e.newValue);
+                        console.debug('parsed deleted data', data);
+                        const btn = document.querySelector(`.movie-card button.view-details-btn[data-movie-id="${data.id}"]`);
+                        if (btn) {
+                            const card = btn.closest('.movie-card');
+                            if (card) {
+                                card.style.transition = 'opacity 0.3s ease';
+                                card.style.opacity = '0';
+                                setTimeout(() => { try { card.remove(); } catch(_){} }, 300);
+                            }
+                        }
+                    } catch (err) {
+                        console.debug('handle deleted event failed', err);
+                    }
+                    return;
+                }
+                
+                // Handle restored movies - add back to user list
+                if (e.key === 'moviehub:movie-restored') {
+                    console.debug('==== STORAGE EVENT: moviehub:movie-restored ====', e.newValue);
+                    if (!e.newValue) return;
+                    try {
+                        const data = JSON.parse(e.newValue);
+                        console.debug('STORAGE: parsed restored data:', data);
+
+                        // If this tab doesn't already display the movie, add it immediately
+                        try {
+                            const id = parseInt(data.id);
+                            if (id && typeof window.addMovieToList === 'function') {
+                                // Ensure displayedMovieIds exists and is a Set
+                                if (!window.displayedMovieIds) window.displayedMovieIds = new Set();
+                                try {
+                                    if (!window.displayedMovieIds.has(id)) {
+                                        console.debug('STORAGE: Adding restored movie directly to DOM', id);
+                                        // Build a minimal movie object usable by createMovieCard / addMovieToList
+                                        const movieObj = {
+                                            id: id,
+                                            title: data.title || '',
+                                            genre: data.genre || '',
+                                            release_year: data.release_year || '',
+                                            description: data.description || '',
+                                            poster: data.poster || ''
+                                        };
+                                        window.addMovieToList(movieObj);
+                                        // Offer to add to Top Picks if appropriate
+                                        try { if (typeof window.maybeAddToTopPicks === 'function') window.maybeAddToTopPicks(movieObj); } catch(_){}
+                                        window.displayedMovieIds.add(id);
+                                        // keep lastMovieId in sync if available
+                                        try { if (typeof lastMovieId !== 'undefined' && id > lastMovieId) lastMovieId = id; } catch(_){}
+                                    } else {
+                                        console.debug('STORAGE: restored movie already displayed:', id);
+                                    }
+                                } catch(err){ console.debug('STORAGE: add immediate failed', err); }
+                            }
+                        } catch(err) { console.debug('STORAGE: parse/early-add failed', err); }
+
+                        console.debug('STORAGE: Triggering immediate fast polling to re-sync');
+                        try { window.showTempNotice && window.showTempNotice(`Restore event received: ${data.id}`); } catch(_){ }
+                        if (window.triggerFastPolling) {
+                            try {
+                                window.triggerFastPolling();
+                                console.debug('STORAGE: Fast polling triggered');
+                            } catch(e) {
+                                console.debug('STORAGE: triggerFastPolling error:', e);
+                            }
+                        }
+                    } catch (err) {
+                        console.debug('STORAGE: handle restored event failed', err);
+                        try { window.showTempNotice('Restore event parse failed'); } catch(_){}
+                    }
+                    return;
+                }
+                
+                if (e.key !== 'moviehub:movie-added') return;
+                console.debug('storage event for moviehub:movie-added', { key: e.key, oldValue: e.oldValue, newValue: e.newValue });
+                // if key was removed (we clean up after broadcast), ignore
+                if (!e.newValue) return;
+                try {
+                    const data = JSON.parse(e.newValue);
+                    console.debug('parsed broadcast data', data);
+                    window.addMovieToList(data);
+                } catch (err) {
+                    console.debug('handle movie-added storage failed', err, e.newValue);
+                }
+            });
+        })();
+
+        // Polling client: periodically check for new movies from the API
+        // This enables cross-browser/cross-device updates (different browsers don't share localStorage)
+        (function(){
+            let lastMovieId = 0;
+            let pollIntervalMs = 2000; // Start with aggressive 2-second polling
+            let pollCount = 0;
+            const maxSlowPolls = 10; // After 10 checks with no results, back off to 5 seconds
+            
+            // Cache of current movie IDs on the page
+            let displayedMovieIds = new Set();
+
+            // Helper to detect if search or genre filter is active
+            function isSearchActive() {
+                const params = new URLSearchParams(window.location.search);
+                return params.has('q') || params.has('genre');
+            }
+
+            async function pollForNewMovies() {
+                // Skip polling if user has an active search or genre filter
+                if (isSearchActive()) {
+                    console.debug('Skipping poll: search or genre filter is active', { q: new URLSearchParams(window.location.search).get('q'), genre: new URLSearchParams(window.location.search).get('genre') });
+                    return;
+                }
+                try {
+                    const response = await fetch(`/api/movies/updates/?since_id=${lastMovieId}`, {
+                        method: 'GET',
+                        credentials: 'same-origin'
+                    });
+                    if (!response.ok) {
+                        console.debug('polling failed', response.status);
+                        return;
+                    }
+                    const movies = await response.json();
+                    if (!Array.isArray(movies) || movies.length === 0) {
+                        console.debug('poll: no new movies');
+                        pollCount++;
+                        // Back off to slower polling after finding nothing for a while
+                        if (pollCount > maxSlowPolls && pollIntervalMs < 5000) {
+                            pollIntervalMs = 5000;
+                            console.debug('Backing off to slower polling (5s)');
+                        }
+                        return;
+                    }
+                    console.debug('poll: found', movies.length, 'new movie(s)', movies);
+                    // Reset poll count and go back to fast polling when we find movies
+                    pollCount = 0;
+                    pollIntervalMs = 2000;
+                    
+                    // Insert each new movie at the top of the list and track the highest ID
+                    movies.forEach(m => {
+                        if (m.id) {
+                            window.addMovieToList(m);
+                            // Don't add newly polled movies to Top Picks automatically
+                            // They will only appear in Top Picks if they're recommended for this user
+                            lastMovieId = Math.max(lastMovieId, m.id);
+                            displayedMovieIds.add(m.id);
+                        }
+                    });
+                } catch (err) {
+                    console.debug('polling error', err);
+                }
+            }
+            
+            // Check for changes in the active movie list (archived or restored)
+            async function checkArchivedMovies() {
+                try {
+                    const response = await fetch(`/api/movies/updates/?since_id=0`, {
+                        method: 'GET',
+                        credentials: 'same-origin'
+                    });
+                    if (!response.ok) return;
+                    const movies = await response.json();
+
+                    // Build a map of active movies by id for quick lookups
+                    const activeMap = new Map();
+                    movies.forEach(m => { if (m && m.id) activeMap.set(m.id, m); });
+                    const activeMovieIds = new Set(activeMap.keys());
+
+                    // Refresh displayed IDs from the DOM (canonical source)
+                    displayedMovieIds.clear();
+                    document.querySelectorAll('.movie-card button.view-details-btn[data-movie-id]').forEach(btn => {
+                        const id = parseInt(btn.getAttribute('data-movie-id'));
+                        if (id) displayedMovieIds.add(id);
+                    });
+
+                    // 1) Remove any displayed movies that are no longer active (archived)
+                    for (let id of Array.from(displayedMovieIds)) {
+                        if (!activeMovieIds.has(id)) {
+                            console.debug('Movie', id, 'was archived - removing from view');
+                            const buttons = document.querySelectorAll(`.movie-card button.view-details-btn[data-movie-id="${id}"]`);
+                            buttons.forEach(btn => {
+                                const card = btn.closest('.movie-card');
+                                if (card) {
+                                    card.style.transition = 'opacity 0.3s ease';
+                                    card.style.opacity = '0';
+                                    setTimeout(() => { 
+                                        try { 
+                                            // First try to remove from Top Picks (look for parent wrapper)
+                                            const topPicksRow = document.querySelector('.top-picks-row');
+                                            if (topPicksRow && topPicksRow.contains(card)) {
+                                                console.debug('POLL: Found card in Top Picks, removing wrapper');
+                                                const wrapper = card.parentElement;
+                                                if (wrapper && wrapper !== card) {
+                                                    wrapper.remove();
+                                                } else {
+                                                    card.remove();
+                                                }
+                                            } else {
+                                                console.debug('POLL: Found card in All Movies, removing');
+                                                card.remove();
+                                            }
+                                        } catch(e) {
+                                            console.debug('POLL: Error removing card:', e);
+                                        }
+                                    }, 300);
+                                }
+                            });
+                            displayedMovieIds.delete(id);
+                        }
+                    }
+
+                    // 2) Add any active movies that aren't currently displayed (restored or newly active)
+                    // Always re-add restored movies even if a search/genre filter is active
+                    try { console.debug('POLL: activeMovieIds=', Array.from(activeMovieIds).slice(0,50)); } catch(_){}
+                    try { console.debug('POLL: displayedMovieIds=', Array.from(displayedMovieIds).slice(0,50)); } catch(_){}
+                    for (let id of Array.from(activeMovieIds)) {
+                        if (!displayedMovieIds.has(id)) {
+                            const m = activeMap.get(id);
+                            if (!m) {
+                                console.debug('POLL: activeMap has no data for id', id);
+                                continue;
+                            }
+                            console.debug('POLL: Movie', id, 'is active but not displayed - RESTORED - adding to view', m);
+                            try {
+                                window.addMovieToList(m);
+                                // Verify with server if this restored movie should be in Top Picks
+                                console.debug('POLL: Calling maybeAddToTopPicks for restored movie', id);
+                                try { window.maybeAddToTopPicks(m); } catch(e) { console.debug('POLL: maybeAddToTopPicks error:', e); }
+                                displayedMovieIds.add(id);
+                                // Keep lastMovieId in sync so future since_id polls don't miss higher ids
+                                if (id > lastMovieId) lastMovieId = id;
+                            } catch (e) {
+                                console.debug('Failed to add restored movie to list', e, m);
+                            }
+                        }
+                    }
+                } catch (err) {
+                    console.debug('archive/check changes error', err);
+                }
+            }
+
+            // Store reference to polling so we can adjust it externally if needed
+            let pollInterval = null;
+
+            // Start polling when page is visible and the list exists
+            if (document.querySelector('.movie-list')) {
+                // Initialize displayed movie IDs from current DOM
+                document.querySelectorAll('.movie-card button.view-details-btn[data-movie-id]').forEach(btn => {
+                    const id = parseInt(btn.getAttribute('data-movie-id'));
+                    if (id) displayedMovieIds.add(id);
+                });
+                
+                // Do an immediate first poll
+                pollForNewMovies();
+                
+                // Also immediately check for archived movies
+                checkArchivedMovies();
+                
+                // Set up interval with dynamic adjustment
+                const startPolling = () => {
+                    if (pollInterval) clearInterval(pollInterval);
+                    pollInterval = setInterval(() => {
+                        pollForNewMovies();
+                        checkArchivedMovies();
+                    }, pollIntervalMs);
+                    console.debug('Polling started (interval: ' + pollIntervalMs + 'ms)');
+                };
+                startPolling();
+                
+                // Expose a function to trigger immediate fast polling (called when movie form closes)
+                window.triggerFastPolling = () => {
+                    console.debug('Fast polling triggered');
+                    pollIntervalMs = 2000;
+                    pollCount = 0;
+                    if (pollInterval) clearInterval(pollInterval);
+                    pollForNewMovies();
+                    checkArchivedMovies();
+                    const startPolling = () => {
+                        if (pollInterval) clearInterval(pollInterval);
+                        pollInterval = setInterval(() => {
+                            pollForNewMovies();
+                            checkArchivedMovies();
+                        }, pollIntervalMs);
+                    };
+                    startPolling();
+                };
+            }
+        })();
+
+    </script>
+</body>
+</html>

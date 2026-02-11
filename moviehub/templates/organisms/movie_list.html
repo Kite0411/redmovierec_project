@@ -1,0 +1,12 @@
+{% load static %}
+{% load dict_extras %}
+
+<div class="movie-list">
+    {% for movie in movies %}
+        {% include 'molecules/movie_card.html' with movie=movie %}
+    {% empty %}
+        <div class="empty-state">
+            <p>No movies found.</p>
+        </div>
+    {% endfor %}
+</div>

@@ -1,0 +1,152 @@
+{% load static %}
+{% load dict_extras %}
+
+<div class="top-picks">
+    <h2 style="color: #E53935; font-size: 1.6rem; margin: 2rem 0 1rem 0; padding-left: 2rem;">Top Picks For You</h2>
+
+    <!-- Horizontal row of cards; overflows horizontally on small screens -->
+    <div class="top-picks-row" id="top-picks-row" style="display:flex; gap:1rem; padding:0 1.5rem 1.5rem 1.5rem; overflow-x:auto; -webkit-overflow-scrolling:touch;">
+        {% for movie in recommended_movies %}
+            <div class="top-picks-wrapper">
+                {% include 'molecules/movie_card.html' with movie=movie %}
+            </div>
+        {% empty %}
+            <div class="empty-state" style="padding:1rem 1.5rem;">
+                <p>No recommendations yet. Rate more movies to get personalized picks!</p>
+            </div>
+        {% endfor %}
+    </div>
+</div>
+
+<script>
+(function() {
+    const row = document.getElementById('top-picks-row');
+    if (!row) return;
+    
+    // Store the original applySearchFilter function
+    const originalApplySearchFilter = window.applySearchFilter;
+    
+    // Wrap it to scroll to left after filtering
+    window.applySearchFilter = function() {
+        // Call the original filter function
+        if (originalApplySearchFilter && typeof originalApplySearchFilter === 'function') {
+            originalApplySearchFilter.apply(this, arguments);
+        }
+        // Scroll the top-picks row to the left after a small delay to ensure DOM is updated
+        if (row) {
+            setTimeout(() => {
+                row.scrollLeft = 0;
+            }, 0);
+        }
+    };
+
+    // Auto-reload top picks every 2 seconds (only refresh if no user interaction)
+    let isUserInteracting = false;
+    async function reloadTopPicks() {
+        try {
+            // Skip reload if user is currently interacting with the page
+            if (isUserInteracting) return;
+            
+            const response = await fetch('/api/top-picks/', { credentials: 'same-origin' });
+            if (!response.ok) return;
+            
+            const movies = await response.json();
+            updateTopPicksDisplay(movies);
+        } catch (e) {
+            console.debug('Failed to reload top picks', e);
+        }
+    }
+    
+    // Separate function to update display (used by auto-reload and manual reload)
+    async function updateTopPicksDisplay(movies) {
+        try {
+            // Get current visible movie IDs
+            const visibleIds = new Set(
+                Array.from(row.querySelectorAll('.top-picks-wrapper')).map(w => 
+                    w.getAttribute('data-movie-id') || w.querySelector('[data-movie-id]')?.getAttribute('data-movie-id')
+                )
+            );
+            const newIds = new Set(movies.map(m => String(m.id)));
+            
+            // Only reload if the set of movies has changed
+            if (visibleIds.size === newIds.size && 
+                Array.from(visibleIds).every(id => newIds.has(id))) {
+                return; // No changes, don't reload
+            }
+            
+            // Get current scroll position
+            const scrollLeft = row.scrollLeft;
+            
+            // Clear existing picks
+            row.innerHTML = '';
+            
+            if (movies.length === 0) {
+                const emptyDiv = document.createElement('div');
+                emptyDiv.className = 'empty-state';
+                emptyDiv.style.padding = '1rem 1.5rem';
+                emptyDiv.innerHTML = '<p>No recommendations yet. Rate more movies to get personalized picks!</p>';
+                row.appendChild(emptyDiv);
+            } else {
+                // For each movie, create a minimal card with just the essentials
+                for (const movie of movies) {
+                    try {
+                        const wrapper = document.createElement('div');
+                        wrapper.className = 'top-picks-wrapper';
+                        wrapper.setAttribute('data-movie-id', movie.id);
+                        
+                        // Create a movie card with the essential structure
+                        wrapper.innerHTML = `
+                            <div class="movie-card" data-movie-id="${movie.id}" data-movie-title="${movie.title}" data-movie-genre="${movie.genre}">
+                                ${movie.poster ? `<img src="${movie.poster}" alt="${movie.title}" class="poster">` : '<div class="poster poster-placeholder">No Image</div>'}
+                                <h4>${movie.title}</h4>
+                                <p><small>${movie.release_year}</small></p>
+                                <p>${movie.genre}</p>
+                                <p class="movie-rating">Rating: ${movie.average_rating > 0 ? movie.average_rating : 'Not rated'}</p>
+                                <button class="btn btn-small view-details-btn more-btn" aria-label="More details for ${movie.title}"
+                                    data-movie-id="${movie.id}"
+                                    data-movie-title="${movie.title}"
+                                    data-movie-year="${movie.release_year}"
+                                    data-movie-genre="${movie.genre}"
+                                    data-movie-rating="${movie.average_rating > 0 ? movie.average_rating : 'Not rated'}"
+                                    data-movie-description="${movie.description || ''}"
+                                    data-movie-poster="${movie.poster || ''}">
+                                    More
+                                </button>
+                            </div>
+                        `;
+                        row.appendChild(wrapper);
+                    } catch (e) {
+                        console.debug('Failed to create movie card for id', movie.id, e);
+                    }
+                }
+            }
+            
+            // Restore scroll position
+            setTimeout(() => { row.scrollLeft = scrollLeft; }, 0);
+        } catch (e) {
+            console.debug('Failed to update top picks display', e);
+        }
+    }
+    
+    // Expose reloadTopPicksNow function globally so dashboard can call it immediately
+    window.reloadTopPicksNow = async function() {
+        try {
+            const response = await fetch('/api/top-picks/', { credentials: 'same-origin' });
+            if (!response.ok) return;
+            const movies = await response.json();
+            await updateTopPicksDisplay(movies);
+        } catch (e) {
+            console.debug('Failed to force reload top picks', e);
+        }
+    };
+
+    // Track user interactions
+    document.addEventListener('mousedown', () => { isUserInteracting = true; }, true);
+    document.addEventListener('mouseup', () => { setTimeout(() => { isUserInteracting = false; }, 500); }, true);
+    document.addEventListener('touchstart', () => { isUserInteracting = true; }, true);
+    document.addEventListener('touchend', () => { setTimeout(() => { isUserInteracting = false; }, 500); }, true);
+
+    // Set up auto-reload interval (2 seconds)
+    setInterval(reloadTopPicks, 2000);
+})();
+</script>

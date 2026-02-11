@@ -1,0 +1,427 @@
+{% load static %}
+{% load dict_extras %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Login - FilmOracle</title>
+    <link rel="stylesheet" href="{% static 'css/style.css' %}">
+    <style>
+        body.auth-page {
+            background-image: url('{% static "images/auth-bg.jpg" %}');
+        }
+    </style>
+</head>
+<body class="auth-page">
+    <!-- Notification -->
+    <div id="notification" style="position: fixed; top: 20px; left: 50%; transform: translateX(-50%); max-width: 500px; padding: 1rem 1.5rem; border-radius: 6px; z-index: 9999; display: none; opacity: 0.95; box-shadow: 0 4px 12px rgba(0,0,0,0.3); transition: all 0.3s ease; text-align: center; background-color: #4CAF50; color: white;">
+    </div>
+
+    <!-- Navigation -->
+    <nav>
+        <div class="logo">FilmOracle</div>
+        <ul>
+        </ul>
+    </nav>
+
+    <!-- Login Form -->
+    <div class="auth-container">
+        <form method="POST" class="auth-card">
+            {% csrf_token %}
+            <div class="auth-header">
+                <h1>Sign In</h1>
+                <p>Welcome back — continue where you left off</p>
+            </div>
+
+            {% if error %}
+                <div style="background-color: #FF6B6B; color: white; padding: 1rem; border-radius: 4px; margin-bottom: 1rem;">
+                    {{ error }}
+                </div>
+                <script>
+                    // Auto-hide the login error after 3 seconds
+                    (function(){
+                        const err = document.querySelector('div[style*="FF6B6B"]');
+                        if (err) {
+                            setTimeout(() => {
+                                err.style.transition = 'opacity 0.3s ease';
+                                err.style.opacity = '0';
+                                setTimeout(() => { err.style.display = 'none'; }, 300);
+                            }, 3000);
+                        }
+                    })();
+                </script>
+            {% endif %}
+
+            <div class="auth-field">
+                <label for="id_username">Username or Email</label>
+                <input id="id_username" name="username" type="text" class="auth-input" placeholder="Username or email" required>
+            </div>
+
+            <div class="auth-field">
+                <label for="id_password">Password</label>
+            </div>
+            <div class="auth-field password-wrap">
+                <input id="id_password" name="password" type="password" class="auth-input" placeholder="Your password" required>
+                <button type="button" class="password-toggle" aria-label="Show password" aria-pressed="false">
+                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="1.6">
+                        <g class="eye-open">
+                            <path d="M1 12s4-7 11-7 11 7 11 7-4 7-11 7S1 12 1 12z" stroke-linecap="round" stroke-linejoin="round"></path>
+                            <circle cx="12" cy="12" r="3" stroke-linecap="round" stroke-linejoin="round"></circle>
+                        </g>
+                        <g class="eye-closed">
+                            <path d="M17.94 17.94A10.94 10.94 0 0112 19c-7 0-11-7-11-7a21.86 21.86 0 015-5.06" stroke-linecap="round" stroke-linejoin="round"></path>
+                            <path d="M1 1l22 22" stroke-linecap="round" stroke-linejoin="round"></path>
+                        </g>
+                    </svg>
+                </button>
+            </div>
+
+            <div class="auth-actions">
+                <button type="submit" class="btn btn-block">Sign In</button>
+            </div>
+
+            <div style="text-align: center; margin-top: 1rem;">
+                <button type="button" id="forgot-password-btn" class="link-btn">Forgot password?</button>
+            </div>
+        </form>
+
+        <!-- Links -->
+        <div class="auth-aux">
+            <p>Don't have an account? <a href="{% url 'register' %}">Create one</a></p>
+        </div>
+    </div>
+
+    <!-- Forgot Password Modal -->
+    <div id="forgotPasswordModal" style="display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.6); z-index: 2000; align-items: center; justify-content: center; padding: 2rem;">
+        <div style="background: #111; border: 1px solid #222; padding: 2rem; border-radius: 8px; max-width: 480px; width: 100%; box-shadow: 0 10px 40px rgba(0,0,0,0.6);">
+            <h2 style="color: #E53935; margin-bottom: 0.5rem;">Reset Password</h2>
+            <p style="color: #cfcfcf; margin-bottom: 1.5rem;">Enter your email address to receive an OTP code.</p>
+            
+            <div id="forgotPasswordStep1">
+                <div style="margin-bottom: 1rem;">
+                    <label for="forgot-email" style="display: block; color: #e0e0e0; margin-bottom: 0.5rem;">Email Address</label>
+                    <input type="email" id="forgot-email" placeholder="your@email.com" style="width: 100%; padding: 0.75rem; background: #262626; border: 1px solid #444; border-radius: 4px; color: #f0f0f0;">
+                </div>
+                <div style="display: flex; gap: 1rem;">
+                    <button type="button" id="send-otp-btn" style="flex: 1; background: #E53935; color: white; border: none; padding: 0.75rem; border-radius: 4px; cursor: pointer; font-weight: 600;">Send OTP</button>
+                    <button type="button" id="close-forgot-btn" style="flex: 1; background: #333; color: #e0e0e0; border: 1px solid #444; padding: 0.75rem; border-radius: 4px; cursor: pointer; font-weight: 600;">Cancel</button>
+                </div>
+            </div>
+
+            <div id="forgotPasswordStep2" style="display: none;">
+                <div style="margin-bottom: 1rem; background: #1a1a1a; padding: 1rem; border-radius: 4px; color: #a0a0a0; font-size: 0.9rem;">
+                    <p>OTP has been sent to <strong id="otp-email-display"></strong></p>
+                </div>
+                <div style="margin-bottom: 1rem;">
+                    <label for="otp-code" style="display: block; color: #e0e0e0; margin-bottom: 0.5rem;">OTP Code</label>
+                    <input type="text" id="otp-code" placeholder="Enter 6-digit OTP" maxlength="6" style="width: 100%; padding: 0.75rem; background: #262626; border: 1px solid #444; border-radius: 4px; color: #f0f0f0; text-align: center; font-size: 1.5rem; letter-spacing: 0.5rem;">
+                </div>
+                <div style="margin-bottom: 1rem;">
+                    <label for="new-password" style="display: block; color: #e0e0e0; margin-bottom: 0.5rem;">New Password</label>
+                    <div style="position: relative;">
+                        <input type="password" id="new-password" placeholder="New password" style="width: 100%; padding: 0.75rem; padding-right: 2.5rem; background: #262626; border: 1px solid #444; border-radius: 4px; color: #f0f0f0;">
+                        <button type="button" class="otp-password-toggle" data-target="new-password" style="position: absolute; right: 0.75rem; top: 50%; transform: translateY(-50%); background: none; border: none; color: #888; cursor: pointer; padding: 0.5rem; display: flex; align-items: center; justify-content: center;">
+                            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="1.6">
+                                <g class="eye-open">
+                                    <path d="M1 12s4-7 11-7 11 7 11 7-4 7-11 7S1 12 1 12z" stroke-linecap="round" stroke-linejoin="round"></path>
+                                    <circle cx="12" cy="12" r="3" stroke-linecap="round" stroke-linejoin="round"></circle>
+                                </g>
+                                <g class="eye-closed" style="display: none;">
+                                    <path d="M17.94 17.94A10.94 10.94 0 0112 19c-7 0-11-7-11-7a21.86 21.86 0 015-5.06" stroke-linecap="round" stroke-linejoin="round"></path>
+                                    <path d="M1 1l22 22" stroke-linecap="round" stroke-linejoin="round"></path>
+                                </g>
+                            </svg>
+                        </button>
+                    </div>
+                </div>
+                <div style="margin-bottom: 1rem;">
+                    <label for="confirm-password" style="display: block; color: #e0e0e0; margin-bottom: 0.5rem;">Confirm Password</label>
+                    <div style="position: relative;">
+                        <input type="password" id="confirm-password" placeholder="Confirm password" style="width: 100%; padding: 0.75rem; padding-right: 2.5rem; background: #262626; border: 1px solid #444; border-radius: 4px; color: #f0f0f0;">
+                        <button type="button" class="otp-password-toggle" data-target="confirm-password" style="position: absolute; right: 0.75rem; top: 50%; transform: translateY(-50%); background: none; border: none; color: #888; cursor: pointer; padding: 0.5rem; display: flex; align-items: center; justify-content: center;">
+                            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="1.6">
+                                <g class="eye-open">
+                                    <path d="M1 12s4-7 11-7 11 7 11 7-4 7-11 7S1 12 1 12z" stroke-linecap="round" stroke-linejoin="round"></path>
+                                    <circle cx="12" cy="12" r="3" stroke-linecap="round" stroke-linejoin="round"></circle>
+                                </g>
+                                <g class="eye-closed" style="display: none;">
+                                    <path d="M17.94 17.94A10.94 10.94 0 0112 19c-7 0-11-7-11-7a21.86 21.86 0 015-5.06" stroke-linecap="round" stroke-linejoin="round"></path>
+                                    <path d="M1 1l22 22" stroke-linecap="round" stroke-linejoin="round"></path>
+                                </g>
+                            </svg>
+                        </button>
+                    </div>
+                </div>
+                <div style="display: flex; gap: 1rem;">
+                    <button type="button" id="verify-otp-btn" style="flex: 1; background: #4CAF50; color: white; border: none; padding: 0.75rem; border-radius: 4px; cursor: pointer; font-weight: 600;">Reset Password</button>
+                    <button type="button" id="back-btn" style="flex: 1; background: #333; color: #e0e0e0; border: 1px solid #444; padding: 0.75rem; border-radius: 4px; cursor: pointer; font-weight: 600;">Back</button>
+                </div>
+            </div>
+
+            <div id="forgotPasswordMessage" style="display: none; padding: 1rem; border-radius: 4px; text-align: center;"></div>
+        </div>
+    </div>
+
+    <style>
+        .link-btn {
+            background: none;
+            border: none;
+            color: #E53935;
+            cursor: pointer;
+            text-decoration: underline;
+            font-size: 0.95rem;
+            padding: 0;
+            font-weight: 500;
+            transition: color 0.3s;
+        }
+        .link-btn:hover {
+            color: #FF6B6B;
+        }
+    </style>
+
+    <script>
+        // Password toggle functionality
+        document.addEventListener('DOMContentLoaded', () => {
+            const passwordToggle = document.querySelector('.password-toggle');
+            const passwordInput = document.getElementById('id_password');
+            
+            if (passwordToggle && passwordInput) {
+                passwordToggle.addEventListener('click', (e) => {
+                    e.preventDefault();
+                    const isPassword = passwordInput.type === 'password';
+                    passwordInput.type = isPassword ? 'text' : 'password';
+                    passwordToggle.setAttribute('aria-pressed', isPassword);
+                });
+            }
+
+            // OTP password toggles
+            const otpToggles = document.querySelectorAll('.otp-password-toggle');
+            otpToggles.forEach(toggle => {
+                toggle.addEventListener('click', (e) => {
+                    e.preventDefault();
+                    const targetId = toggle.getAttribute('data-target');
+                    const input = document.getElementById(targetId);
+                    if (input) {
+                        const isPassword = input.type === 'password';
+                        input.type = isPassword ? 'text' : 'password';
+                        const eyeOpen = toggle.querySelector('.eye-open');
+                        const eyeClosed = toggle.querySelector('.eye-closed');
+                        if (isPassword) {
+                            eyeOpen.style.display = 'none';
+                            eyeClosed.style.display = 'inline-block';
+                        } else {
+                            eyeOpen.style.display = 'inline-block';
+                            eyeClosed.style.display = 'none';
+                        }
+                    }
+                });
+            });
+        });
+
+        // Notification display function
+        function showNotification(text, isError = false) {
+            const notif = document.getElementById('notification');
+            notif.textContent = text;
+            notif.style.background = isError ? '#FF6B6B' : '#4CAF50';
+            notif.style.color = 'white';
+            notif.style.display = 'block';
+            notif.style.opacity = '0.95';
+
+            // Auto-hide after 3 seconds
+            setTimeout(() => {
+                notif.style.opacity = '0';
+                setTimeout(() => {
+                    notif.style.display = 'none';
+                    notif.style.opacity = '0.95';
+                }, 300);
+            }, 3000);
+        }
+
+        // Forgot Password Modal Management
+        (function(){
+            const modal = document.getElementById('forgotPasswordModal');
+            const btn = document.getElementById('forgot-password-btn');
+            const closeBtn = document.getElementById('close-forgot-btn');
+            const backBtn = document.getElementById('back-btn');
+            const step1 = document.getElementById('forgotPasswordStep1');
+            const step2 = document.getElementById('forgotPasswordStep2');
+            const message = document.getElementById('forgotPasswordMessage');
+            const sendOtpBtn = document.getElementById('send-otp-btn');
+            const verifyOtpBtn = document.getElementById('verify-otp-btn');
+            const emailInput = document.getElementById('forgot-email');
+            const otpInput = document.getElementById('otp-code');
+            const newPasswordInput = document.getElementById('new-password');
+            const confirmPasswordInput = document.getElementById('confirm-password');
+            const emailDisplay = document.getElementById('otp-email-display');
+
+            function showStep(stepNum) {
+                if (stepNum === 1) {
+                    step1.style.display = 'block';
+                    step2.style.display = 'none';
+                    message.style.display = 'none';
+                } else if (stepNum === 2) {
+                    step1.style.display = 'none';
+                    step2.style.display = 'block';
+                    message.style.display = 'none';
+                }
+            }
+
+            function showMessage(text, isError = false) {
+                showNotification(text, isError);
+            }
+
+            function openModal() {
+                modal.style.display = 'flex';
+                showStep(1);
+                emailInput.value = '';
+                otpInput.value = '';
+                newPasswordInput.value = '';
+                confirmPasswordInput.value = '';
+                message.style.display = 'none';
+            }
+
+            function closeModal() {
+                modal.style.display = 'none';
+            }
+
+            btn.addEventListener('click', (e) => {
+                e.preventDefault();
+                openModal();
+            });
+
+            closeBtn.addEventListener('click', closeModal);
+            backBtn.addEventListener('click', () => {
+                showStep(1);
+                otpInput.value = '';
+                newPasswordInput.value = '';
+                confirmPasswordInput.value = '';
+                message.style.display = 'none';
+            });
+
+            modal.addEventListener('click', (e) => {
+                if (e.target === modal) closeModal();
+            });
+
+            // Send OTP
+            sendOtpBtn.addEventListener('click', async () => {
+                const email = emailInput.value.trim();
+                if (!email) {
+                    showMessage('Please enter an email address', true);
+                    return;
+                }
+
+                sendOtpBtn.disabled = true;
+                sendOtpBtn.textContent = 'Sending...';
+
+                try {
+                    const response = await fetch('{% url "send_otp" %}', {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                            'X-CSRFToken': getCookie('csrftoken'),
+                        },
+                        body: JSON.stringify({ email }),
+                    });
+
+                    const data = await response.json();
+
+                    if (response.ok && data.status === 'success') {
+                        emailDisplay.textContent = email;
+                        showStep(2);
+                        showMessage('OTP sent to ' + email, false);
+                    } else {
+                        showMessage(data.message || 'Failed to send OTP', true);
+                    }
+                } catch (error) {
+                    showMessage('Error sending OTP', true);
+                    console.error('Error:', error);
+                } finally {
+                    sendOtpBtn.disabled = false;
+                    sendOtpBtn.textContent = 'Send OTP';
+                }
+            });
+
+            // Verify OTP and Reset Password
+            verifyOtpBtn.addEventListener('click', async () => {
+                const email = emailInput.value.trim();
+                const otp = otpInput.value.trim();
+                const newPassword = newPasswordInput.value;
+                const confirmPassword = confirmPasswordInput.value;
+
+                if (!otp || otp.length !== 6) {
+                    showMessage('Please enter a valid 6-digit OTP', true);
+                    return;
+                }
+
+                if (!newPassword || !confirmPassword) {
+                    showMessage('Please fill in all password fields', true);
+                    return;
+                }
+
+                if (newPassword !== confirmPassword) {
+                    showMessage('Passwords do not match', true);
+                    return;
+                }
+
+                if (newPassword.length < 8) {
+                    showMessage('Password must be at least 8 characters', true);
+                    return;
+                }
+
+                verifyOtpBtn.disabled = true;
+                verifyOtpBtn.textContent = 'Resetting...';
+
+                try {
+                    const response = await fetch('{% url "reset_password_with_otp" %}', {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                            'X-CSRFToken': getCookie('csrftoken'),
+                        },
+                        body: JSON.stringify({ email, otp, new_password: newPassword }),
+                    });
+
+                    const data = await response.json();
+
+                    if (response.ok && data.status === 'success') {
+                        showMessage('Password reset successfully! Redirecting to login...', false);
+                        setTimeout(() => {
+                            window.location.href = window.location.href;
+                        }, 2000);
+                    } else {
+                        showMessage(data.message || 'Failed to reset password', true);
+                    }
+                } catch (error) {
+                    showMessage('Error resetting password', true);
+                    console.error('Error:', error);
+                } finally {
+                    verifyOtpBtn.disabled = false;
+                    verifyOtpBtn.textContent = 'Reset Password';
+                }
+            });
+
+            // Utility function to get CSRF token
+            function getCookie(name) {
+                let cookieValue = null;
+                if (document.cookie && document.cookie !== '') {
+                    const cookies = document.cookie.split(';');
+                    for (let i = 0; i < cookies.length; i++) {
+                        const cookie = cookies[i].trim();
+                        if (cookie.substring(0, name.length + 1) === (name + '=')) {
+                            cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                            break;
+                        }
+                    }
+                }
+                return cookieValue;
+            }
+        })();
+    </script>
+
+    <!-- Footer -->
+    <footer style="background-color: #1a1a1a; border-top: 1px solid #333; padding: 2rem; text-align: center; margin-top: auto; color: #a0a0a0; position: fixed; bottom: 0; width: 100%;">
+        <p>&copy; 2025 FilmOracle. Rate movies and discover your next favorite.</p>
+    </footer>
+</body>
+</html>

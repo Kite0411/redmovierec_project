@@ -1,0 +1,16 @@
+{% load static %}
+{% load dict_extras %}
+
+{% if movie %}
+<form method="POST" action="{% url 'rate_movie' movie.id %}" class="rating-form">
+    {% csrf_token %}
+    {% include 'atoms/star_rating.html' %}
+    <button type="submit" class="btn" style="width: 100%; margin-top: 0.5rem; background-color: #388E3C; color: white;">Submit Rating</button>
+</form>
+{% else %}
+<form method="POST" action="" class="rating-form">
+    {% csrf_token %}
+    {% include 'atoms/star_rating.html' %}
+    <button type="submit" class="btn" style="width: 100%; margin-top: 0.5rem; background-color: #388E3C; color: white;">Submit Rating</button>
+</form>
+{% endif %}

@@ -1,0 +1,814 @@
+/* Admin Dashboard Styles */
+
+.admin-container {
+    display: flex;
+    min-height: calc(100vh - 80px);
+    background-color: #0f0f0f;
+}
+
+/* Sidebar */
+.admin-sidebar {
+    width: 250px;
+    background-color: #1a1a1a;
+    border-right: 1px solid #333;
+    padding: 2rem 0;
+    position: sticky;
+    top: 80px;
+    max-height: calc(100vh - 80px);
+    overflow-y: auto;
+}
+
+.sidebar-menu {
+    display: flex;
+    flex-direction: column;
+}
+
+.menu-item {
+    padding: 1rem 1.5rem;
+    color: #a0a0a0;
+    text-decoration: none;
+    border-left: 3px solid transparent;
+    transition: all 0.3s ease;
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+}
+
+.menu-item:hover {
+    background-color: #2a2a2a;
+    color: #E53935;
+}
+
+.menu-item.active {
+    background-color: #2a2a2a;
+    color: #E53935;
+    border-left-color: #E53935;
+}
+
+/* Main Content */
+.admin-content {
+    flex: 1;
+    padding: 2rem;
+    overflow-y: auto;
+}
+
+/* Keep admin header fixed and avoid content overlap */
+.admin-page nav {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    z-index: 1200;
+    /* preserve existing visual style; allow the template nav styles to apply */
+}
+
+/* Add top padding so content doesn't sit under the fixed header */
+.admin-page .admin-container {
+    padding-top: 80px; /* matches header height used elsewhere */
+    min-height: calc(100vh - 80px);
+}
+
+/* Ensure admin modals appear above the fixed admin header */
+.admin-page .movie-modal {
+    z-index: 1400; /* above nav (1200) */
+}
+.admin-page .movie-modal .modal-content {
+    z-index: 1401;
+}
+
+.admin-section {
+    display: none;
+}
+
+.admin-section.active {
+    display: block;
+}
+
+.section-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 2rem;
+    border-bottom: 2px solid #E53935;
+    padding-bottom: 1rem;
+}
+
+.section-header h1 {
+    color: #E53935;
+    font-size: 2rem;
+    margin: 0;
+}
+
+/* Form Styles */
+.admin-form {
+    background-color: #1a1a1a;
+    border: 1px solid #333;
+    border-radius: 8px;
+    padding: 2rem;
+    margin-bottom: 2rem;
+}
+
+.admin-form h2 {
+    color: #E53935;
+    margin-bottom: 1.5rem;
+}
+
+.form-group {
+    margin-bottom: 1.5rem;
+}
+
+.form-row {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 1rem;
+}
+
+.form-group label {
+    display: block;
+    color: #e0e0e0;
+    margin-bottom: 0.5rem;
+    font-weight: 500;
+}
+
+.form-group input,
+.form-group textarea,
+.form-group select {
+    width: 100%;
+    padding: 0.75rem;
+    background-color: #2a2a2a;
+    border: 1px solid #333;
+    border-radius: 4px;
+    color: #e0e0e0;
+    font-size: 1rem;
+    font-family: inherit;
+}
+
+.form-group input:focus,
+.form-group textarea:focus,
+.form-group select:focus {
+    outline: none;
+    border-color: #E53935;
+    box-shadow: 0 0 5px rgba(229, 57, 53, 0.3);
+}
+
+.form-group small {
+    display: block;
+    color: #a0a0a0;
+    font-size: 0.85rem;
+    margin-top: 0.25rem;
+}
+
+.form-actions {
+    display: flex;
+    gap: 1rem;
+    margin-top: 2rem;
+}
+
+.btn-cancel {
+    background-color: #999999;
+    color: white;
+}
+
+.btn-cancel:hover {
+    background-color: #777777;
+}
+
+/* Logout button styling */
+.btn.logout {
+    background-color: #f44336;
+    color: white;
+}
+
+.btn.logout:hover {
+    background-color: #da190b;
+}
+
+/* Profile dropdown form buttons - Change button */
+#profile-dropdown .btn:not(.logout) {
+    background-color: #4CAF50;
+    color: white;
+}
+
+#profile-dropdown .btn:not(.logout):hover {
+    background-color: #45a049;
+}
+
+/* Clear button styling */
+#admin-filter-clear {
+    background-color: #999999 !important;
+    color: white !important;
+}
+
+#admin-filter-clear:hover {
+    background-color: #777777 !important;
+}
+
+#admin-filter-apply {
+    background-color: #4CAF50 !important;
+    color: white !important;
+}
+
+#admin-filter-apply:hover {
+    background-color: #45a049 !important;
+}
+
+/* Table Styles */
+.table-container {
+    background-color: #1a1a1a;
+    border: 1px solid #333;
+    border-radius: 8px;
+    overflow-x: auto;
+}
+
+.admin-table {
+    width: 100%;
+    border-collapse: collapse;
+}
+
+.admin-table thead {
+    background-color: #2a2a2a;
+    border-bottom: 2px solid #E53935;
+}
+
+.admin-table th {
+    padding: 1rem;
+    text-align: left;
+    color: #E53935;
+    font-weight: 600;
+}
+
+.admin-table td {
+    padding: 1rem;
+    border-bottom: 1px solid #333;
+    color: #e0e0e0;
+}
+
+.admin-table tbody tr:hover {
+    background-color: #2a2a2a;
+}
+
+.table-poster {
+    width: 50px;
+    height: 75px;
+    object-fit: cover;
+    border-radius: 4px;
+}
+
+.no-poster {
+    width: 50px;
+    height: 75px;
+    background-color: #333;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 4px;
+    color: #a0a0a0;
+}
+
+/* Action Buttons */
+.btn-small {
+    padding: 0.5rem 1rem;
+    margin-right: 0.5rem;
+    font-size: 0.875rem;
+    text-decoration: none;
+    border-radius: 4px;
+    display: inline-block;
+    transition: all 0.3s ease;
+}
+
+.btn-edit {
+    background-color: #4CAF50;
+    color: white;
+}
+
+.btn-edit:hover {
+    background-color: #45a049;
+}
+
+.btn-archive {
+    background-color: #FFC107 !important;
+    color: #333 !important;
+}
+
+.btn-archive:hover {
+    background-color: #FFB300 !important;
+}
+
+.btn-delete {
+    background-color: #f44336;
+    color: white;
+}
+
+.btn-delete:hover {
+    background-color: #da190b;
+}
+
+/* Stats Grid */
+.stats-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+    gap: 1.5rem;
+    margin-top: 2rem;
+}
+
+.stat-card {
+    border-radius: 8px;
+    padding: 2rem;
+    text-align: center;
+    color: white;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+}
+
+.stat-card:nth-child(1) {
+    background: linear-gradient(135deg, #E53935 0%, #C62828 100%);
+}
+
+.stat-card:nth-child(2) {
+    background: linear-gradient(135deg, #1976D2 0%, #1565C0 100%);
+}
+
+.stat-card:nth-child(3) {
+    background: linear-gradient(135deg, #388E3C 0%, #2E7D32 100%);
+}
+
+.stat-card:nth-child(4) {
+    background: linear-gradient(135deg, #F57C00 0%, #E65100 100%);
+}
+
+.stat-number {
+    font-size: 2.5rem;
+    font-weight: bold;
+    margin-bottom: 0.5rem;
+}
+
+.stat-label {
+    font-size: 1rem;
+    opacity: 0.9;
+}
+
+.rating-stars {
+    color: #FFEB3B;
+    letter-spacing: 2px;
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+    .admin-container {
+        flex-direction: column;
+    }
+
+    .admin-sidebar {
+        width: 100%;
+        border-right: none;
+        border-bottom: 1px solid #333;
+        padding: 1rem 0;
+        position: static;
+        max-height: none;
+    }
+
+    .sidebar-menu {
+        flex-direction: row;
+        flex-wrap: wrap;
+    }
+
+    .menu-item {
+        flex: 1;
+        min-width: 150px;
+        border-left: none;
+        border-bottom: 3px solid transparent;
+    }
+
+    .menu-item.active {
+        border-left: none;
+        border-bottom-color: #E53935;
+    }
+
+    .admin-content {
+        padding: 1rem;
+    }
+
+    .form-row {
+        grid-template-columns: 1fr;
+    }
+
+    .section-header {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 1rem;
+    }
+
+    .admin-table {
+        font-size: 0.875rem;
+    }
+
+    .admin-table th,
+    .admin-table td {
+        padding: 0.75rem;
+    }
+
+    .stats-grid {
+        grid-template-columns: 1fr;
+    }
+}
+
+/* Light theme support for admin dashboard - red, white, and gray palette */
+
+/* Base elements in light mode */
+.theme-light body.admin-page {
+    background-color: #ffffff !important;
+    color: #333333 !important;
+}
+
+.theme-light .admin-page {
+    background-color: #ffffff !important;
+}
+
+/* Main containers */
+.theme-light .admin-container {
+    background-color: #ffffff !important;
+    color: #333333 !important;
+}
+
+.theme-light .admin-content {
+    background-color: #f5f5f5 !important;
+    color: #333333 !important;
+}
+
+/* Sidebar */
+.theme-light .admin-sidebar {
+    background-color: #eeeeee !important;
+    border-right-color: #d0d0d0 !important;
+}
+
+.theme-light .sidebar-menu {
+    background-color: #eeeeee !important;
+}
+
+.theme-light .menu-item {
+    color: #555555 !important;
+    background-color: transparent !important;
+}
+
+.theme-light .menu-item:hover {
+    background-color: #e0e0e0 !important;
+    color: #E53935 !important;
+}
+
+.theme-light .menu-item.active {
+    background-color: #e0e0e0 !important;
+    color: #E53935 !important;
+    border-left-color: #E53935 !important;
+}
+
+/* Section headers */
+.theme-light .section-header {
+    color: #333333 !important;
+    border-bottom-color: #E53935 !important;
+}
+
+.theme-light .section-header h1 {
+    color: #E53935 !important;
+}
+
+/* Messages */
+.theme-light .admin-messages {
+    background-color: #ffffff !important;
+}
+
+.theme-light .admin-message {
+    background-color: #e8f5e9 !important;
+    color: #2e7d32 !important;
+    border-left-color: #4caf50 !important;
+}
+
+/* Tables */
+.theme-light .table-container {
+    background-color: #ffffff !important;
+    border-color: #d0d0d0 !important;
+}
+
+.theme-light .admin-table {
+    background-color: #ffffff !important;
+    border-color: #d0d0d0 !important;
+    color: #333333 !important;
+}
+
+.theme-light .admin-table th {
+    background-color: #f5f5f5 !important;
+    color: #333333 !important;
+    border-bottom-color: #E53935 !important;
+}
+
+.theme-light .admin-table td {
+    border-color: #d0d0d0 !important;
+    color: #333333 !important;
+}
+
+.theme-light .admin-table tbody tr:hover {
+    background-color: #fafafa !important;
+}
+
+.theme-light .admin-table tbody tr:nth-child(even) {
+    background-color: #fafafa !important;
+}
+
+/* Forms and inputs */
+.theme-light .admin-form {
+    background-color: #ffffff !important;
+    border-color: #d0d0d0 !important;
+}
+
+.theme-light .admin-form h2 {
+    color: #E53935 !important;
+}
+
+.theme-light .admin-form-group {
+    color: #333333 !important;
+}
+
+.theme-light .admin-form-group label {
+    color: #333333 !important;
+}
+
+.theme-light label {
+    color: #333333 !important;
+}
+
+.theme-light input[type="text"],
+.theme-light input[type="email"],
+.theme-light input[type="number"],
+.theme-light input[type="password"],
+.theme-light input[type="date"],
+.theme-light input[type="time"],
+.theme-light input[type="search"],
+.theme-light textarea,
+.theme-light select {
+    background-color: #ffffff !important;
+    color: #333333 !important;
+    border-color: #d0d0d0 !important;
+}
+
+.theme-light input:focus,
+.theme-light textarea:focus,
+.theme-light select:focus {
+    border-color: #E53935 !important;
+    background-color: #ffffff !important;
+    color: #333333 !important;
+}
+
+.theme-light input::placeholder,
+.theme-light textarea::placeholder {
+    color: #999999 !important;
+}
+
+.theme-light .form-group small {
+    color: #666666 !important;
+}
+
+/* Buttons in light mode */
+.theme-light .btn-edit {
+    background-color: #4CAF50 !important;
+    color: white !important;
+}
+
+.theme-light .btn-edit:hover {
+    background-color: #45a049 !important;
+}
+
+.theme-light .btn-archive {
+    background-color: #FFC107 !important;
+    color: #333 !important;
+}
+
+.theme-light .btn-archive:hover {
+    background-color: #FFB300 !important;
+}
+
+.theme-light .btn-cancel {
+    background-color: #999999 !important;
+    color: white !important;
+}
+
+.theme-light .btn-cancel:hover {
+    background-color: #777777 !important;
+}
+
+.theme-light .btn.logout {
+    background-color: #f44336 !important;
+    color: white !important;
+}
+
+.theme-light .btn.logout:hover {
+    background-color: #da190b !important;
+}
+
+.theme-light #profile-dropdown .btn:not(.logout) {
+    background-color: #4CAF50 !important;
+    color: white !important;
+}
+
+.theme-light #profile-dropdown .btn:not(.logout):hover {
+    background-color: #45a049 !important;
+}
+
+.theme-light #admin-filter-clear {
+    background-color: #999999 !important;
+    color: white !important;
+}
+
+.theme-light #admin-filter-clear:hover {
+    background-color: #777777 !important;
+}
+
+.theme-light #admin-filter-apply {
+    background-color: #4CAF50 !important;
+    color: white !important;
+}
+
+.theme-light #admin-filter-apply:hover {
+    background-color: #45a049 !important;
+}
+
+/* Stats and Chart */
+.theme-light .stats-grid {
+    background-color: #f5f5f5 !important;
+}
+
+#chart-container {
+    background-color: #121212 !important;
+    border-color: #222 !important;
+}
+
+.theme-light #chart-container {
+    background-color: #ffffff !important;
+    border-color: #d0d0d0 !important;
+}
+
+.theme-light .stat-card {
+    color: #ffffff !important;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.15) !important;
+}
+
+.theme-light .stat-card:nth-child(1) {
+    background: linear-gradient(135deg, #E53935 0%, #C62828 100%) !important;
+}
+
+.theme-light .stat-card:nth-child(2) {
+    background: linear-gradient(135deg, #1976D2 0%, #1565C0 100%) !important;
+}
+
+.theme-light .stat-card:nth-child(3) {
+    background: linear-gradient(135deg, #388E3C 0%, #2E7D32 100%) !important;
+}
+
+.theme-light .stat-card:nth-child(4) {
+    background: linear-gradient(135deg, #F57C00 0%, #E65100 100%) !important;
+}
+
+.theme-light .stat-number {
+    color: #ffffff !important;
+}
+
+.theme-light .stat-label {
+    color: rgba(255, 255, 255, 0.9) !important;
+}
+
+/* Filters */
+.theme-light #admin-filter-btn {
+    color: #333333 !important;
+}
+
+.theme-light #admin-filter-dropdown {
+    background-color: #ffffff !important;
+    border-color: #d0d0d0 !important;
+}
+
+.theme-light #admin-filter-dropdown label {
+    color: #555555 !important;
+}
+
+.theme-light #admin-filter-dropdown select {
+    background-color: #ffffff !important;
+    color: #333333 !important;
+    border-color: #d0d0d0 !important;
+}
+
+/* List items */
+.theme-light .archive-item,
+.theme-light .rating-item,
+.theme-light .user-item {
+    background-color: #ffffff !important;
+    border-color: #d0d0d0 !important;
+    color: #333333 !important;
+}
+
+.theme-light .archive-item:hover,
+.theme-light .rating-item:hover,
+.theme-light .user-item:hover {
+    background-color: #f5f5f5 !important;
+}
+
+/* Modal styling */
+.theme-light .modal-overlay {
+    background-color: rgba(0, 0, 0, 0.3) !important;
+}
+
+.theme-light .modal-content {
+    background-color: #ffffff !important;
+    color: #333333 !important;
+    border-color: #d0d0d0 !important;
+}
+
+.theme-light .modal-close {
+    color: #333333 !important;
+}
+
+.theme-light .movie-modal .form-group label {
+    color: #E53935 !important;
+}
+
+.theme-light .movie-modal .form-group input,
+.theme-light .movie-modal .form-group textarea {
+    background-color: #ffffff !important;
+    border-color: #d0d0d0 !important;
+    color: #333333 !important;
+}
+
+.theme-light .movie-modal .form-group input:focus,
+.theme-light .movie-modal .form-group textarea:focus {
+    border-color: #E53935 !important;
+    box-shadow: 0 0 0 2px rgba(229, 57, 53, 0.2) !important;
+}
+
+.theme-light .movie-modal .form-group input::placeholder,
+.theme-light .movie-modal .form-group textarea::placeholder {
+    color: #999999 !important;
+}
+
+.theme-light .movie-modal .form-group small {
+    color: #666666 !important;
+}
+
+.theme-light .movie-modal .form-actions .btn {
+    background-color: #E53935 !important;
+    color: #fff !important;
+}
+
+.theme-light .movie-modal .form-actions .btn:hover {
+    background-color: #C62828 !important;
+}
+
+.theme-light .movie-modal .form-actions .btn-cancel {
+    background-color: #999999 !important;
+    color: white !important;
+}
+
+.theme-light .movie-modal .form-actions .btn-cancel:hover {
+    background-color: #777777 !important;
+}
+
+.theme-light #admin-confirm-modal .modal-content {
+    background-color: #ffffff !important;
+    border-color: #d0d0d0 !important;
+    color: #333333 !important;
+}
+
+.theme-light #admin-confirm-title {
+    color: #E53935 !important;
+}
+
+.theme-light #admin-confirm-body {
+    color: #555555 !important;
+}
+
+.theme-light .admin-confirm-btn {
+    background-color: #E53935 !important;
+    color: white !important;
+}
+
+.theme-light .admin-confirm-btn:hover {
+    background-color: #C62828 !important;
+}
+
+.theme-light .admin-confirm-cancel {
+    background-color: #999999 !important;
+    color: white !important;
+}
+
+.theme-light .admin-confirm-cancel:hover {
+    background-color: #777777 !important;
+}
+
+/* Chart colors for light mode */
+.theme-light canvas {
+    filter: invert(1) hue-rotate(180deg) !important;
+}
+
+/* All text elements */
+.theme-light h1, .theme-light h2, .theme-light h3, .theme-light h4, .theme-light h5, .theme-light h6 {
+    color: #333333 !important;
+}
+
+.theme-light p {
+    color: #333333 !important;
+}

@@ -1,0 +1,30 @@
+{% load static %}
+{% load dict_extras %}
+
+<div class="movie-card" data-movie-id="{{ movie.id }}" data-movie-title="{{ movie.title|escapejs }}" data-movie-genre="{{ movie.genre|default:''|escapejs }}">
+    {% if movie.poster %}
+        <img src="{{ movie.poster.url }}" alt="{{ movie.title }}" class="poster">
+    {% else %}
+        <div class="poster poster-placeholder">No Image</div>
+    {% endif %}
+    <h4>{{ movie.title }}</h4>
+    <p><small>{{ movie.release_year }}</small></p>
+    <p>{{ movie.genre }}</p>
+    {% if movie.average_rating %}
+        <p class="movie-rating">Rating: {{ movie.average_rating }}</p>
+    {% else %}
+        <p class="movie-rating">Rating: Not rated</p>
+    {% endif %}
+    {% comment %} include user's rating (if any) so modal can prefill their choice {% endcomment %}
+    <button class="btn btn-small view-details-btn more-btn" aria-label="More details for {{ movie.title }}"
+        data-movie-id="{{ movie.id }}"
+        data-movie-title="{{ movie.title }}"
+        data-movie-year="{{ movie.release_year }}"
+        data-movie-genre="{{ movie.genre }}"
+        data-movie-rating="{% if movie.average_rating %}{{ movie.average_rating }}{% else %}Not rated{% endif %}"
+        data-movie-description="{{ movie.description|default:''|escape }}"
+        data-movie-poster="{% if movie.poster %}{{ movie.poster.url }}{% endif %}"
+        data-movie-user-rating="{{ user_ratings|get_item:movie.id|default:'' }}">
+        More
+    </button>
+</div>

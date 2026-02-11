@@ -1,0 +1,131 @@
+{% load static %}
+{% load dict_extras %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Register - FilmOracle</title>
+    <link rel="stylesheet" href="{% static 'css/style.css' %}">
+    <style>
+        body.auth-page {
+            background-image: url('{% static "images/auth-bg.jpg" %}');
+        }
+    </style>
+</head>
+<body class="auth-page">
+    <!-- Navigation -->
+    <nav>
+        <div class="logo">FilmOracle</div>
+        <ul>
+        </ul>
+    </nav>
+
+    <!-- Register Form -->
+    <div class="auth-container">
+        <form method="POST" class="auth-card">
+            {% csrf_token %}
+            <div class="auth-header">
+                <h1>Create Account</h1>
+                <p>Join FilmOracle — discover movies you'll love</p>
+            </div>
+
+            <div class="auth-field">
+                <label for="id_email">Email</label>
+                <input id="id_email" name="email" type="email" class="auth-input" placeholder="you@example.com" required>
+            </div>
+
+            <div class="auth-field">
+                <label for="id_username">Username</label>
+                <input id="id_username" name="username" type="text" class="auth-input" placeholder="Choose a username" required>
+            </div>
+
+            <div class="auth-field">
+                <label for="id_password">Password</label>
+            </div>
+            <div class="auth-field password-wrap">
+                <input id="id_password" name="password1" type="password" class="auth-input" placeholder="Create a password" required>
+                <button type="button" class="password-toggle" aria-label="Show password" aria-pressed="false">
+                    <!-- Single SVG with both states; CSS toggles which path is visible -->
+                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="1.6">
+                        <g class="eye-open">
+                            <path d="M1 12s4-7 11-7 11 7 11 7-4 7-11 7S1 12 1 12z" stroke-linecap="round" stroke-linejoin="round"></path>
+                            <circle cx="12" cy="12" r="3" stroke-linecap="round" stroke-linejoin="round"></circle>
+                        </g>
+                        <g class="eye-closed">
+                            <path d="M17.94 17.94A10.94 10.94 0 0112 19c-7 0-11-7-11-7a21.86 21.86 0 015-5.06" stroke-linecap="round" stroke-linejoin="round"></path>
+                            <path d="M1 1l22 22" stroke-linecap="round" stroke-linejoin="round"></path>
+                        </g>
+                    </svg>
+                </button>
+            </div>
+
+            <div class="auth-field">
+                <label for="id_password_confirm">Confirm Password</label>
+            </div>
+            <div class="auth-field password-wrap">
+                <input id="id_password_confirm" name="password2" type="password" class="auth-input" placeholder="Confirm your password" required>
+                <button type="button" class="password-toggle" aria-label="Show password" aria-pressed="false">
+                    <!-- Single SVG with both states; CSS toggles which path is visible -->
+                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="1.6">
+                        <g class="eye-open">
+                            <path d="M1 12s4-7 11-7 11 7 11 7-4 7-11 7S1 12 1 12z" stroke-linecap="round" stroke-linejoin="round"></path>
+                            <circle cx="12" cy="12" r="3" stroke-linecap="round" stroke-linejoin="round"></circle>
+                        </g>
+                        <g class="eye-closed">
+                            <path d="M17.94 17.94A10.94 10.94 0 0112 19c-7 0-11-7-11-7a21.86 21.86 0 015-5.06" stroke-linecap="round" stroke-linejoin="round"></path>
+                            <path d="M1 1l22 22" stroke-linecap="round" stroke-linejoin="round"></path>
+                        </g>
+                    </svg>
+                </button>
+            </div>
+
+            {% if error %}
+                <div style="background-color: #FF6B6B; color: white; padding: 1rem; border-radius: 4px; margin-bottom: 1rem;">
+                    {{ error }}
+                </div>
+            {% endif %}
+
+            <div class="auth-actions">
+                <button type="submit" class="btn btn-block">Register</button>
+            </div>
+        </form>
+
+        <!-- Links -->
+        <div class="auth-aux">
+            <p>Already have an account? <a href="{% url 'login' %}">Sign in</a></p>
+        </div>
+    </div>
+
+    <script>
+        // Password toggle: switch input type between password/text
+        (function(){
+            const toggles = document.querySelectorAll('.password-toggle');
+            toggles.forEach(btn => {
+                const wrap = btn.closest('.password-wrap');
+                if (!wrap) return;
+                const input = wrap.querySelector('input.auth-input');
+                if (!input) return;
+
+                btn.addEventListener('click', function(){
+                    const isPressed = btn.getAttribute('aria-pressed') === 'true';
+                    if (isPressed) {
+                        input.type = 'password';
+                        btn.setAttribute('aria-pressed','false');
+                        btn.setAttribute('aria-label','Show password');
+                    } else {
+                        input.type = 'text';
+                        btn.setAttribute('aria-pressed','true');
+                        btn.setAttribute('aria-label','Hide password');
+                    }
+                });
+            });
+        })();
+    </script>
+
+    <!-- Footer -->
+    <footer style="background-color: #1a1a1a; border-top: 1px solid #333; padding: 2rem; text-align: center; margin-top: auto; color: #a0a0a0; position: fixed; bottom: 0; width: 100%;">
+        <p>&copy; 2025 FilmOracle. Rate movies and discover your next favorite.</p>
+    </footer>
+</body>
+</html>

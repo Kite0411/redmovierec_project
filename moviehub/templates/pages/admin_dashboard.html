@@ -1,0 +1,1823 @@
+
+{% load static %}
+{% load dict_extras %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin Dashboard - FilmOracle</title>
+    <link rel="stylesheet" href="{% static 'css/style.css' %}">
+    <link rel="stylesheet" href="{% static 'css/admin.css' %}">
+</head>
+<body class="admin-page">
+    <!-- Navigation -->
+    <nav>
+        <div class="logo">FilmOracle Admin</div>
+        <ul>
+            <li>
+                <button id="theme-toggle-btn" title="Toggle theme" aria-pressed="false">
+                    <!-- Sun + Moon icons; JS toggles state -->
+                    <svg id="theme-icon-sun" width="18" height="18" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" style="display:none;">
+                        <circle cx="12" cy="12" r="4" stroke="#E53935" stroke-width="1.6"/>
+                        <g stroke="#E53935" stroke-width="1.6">
+                            <path d="M12 2v2" stroke-linecap="round" />
+                            <path d="M12 20v2" stroke-linecap="round" />
+                            <path d="M4.93 4.93l1.41 1.41" stroke-linecap="round" />
+                            <path d="M17.66 17.66l1.41 1.41" stroke-linecap="round" />
+                            <path d="M2 12h2" stroke-linecap="round" />
+                            <path d="M20 12h2" stroke-linecap="round" />
+                            <path d="M4.93 19.07l1.41-1.41" stroke-linecap="round" />
+                            <path d="M17.66 6.34l1.41-1.41" stroke-linecap="round" />
+                        </g>
+                    </svg>
+                    <svg id="theme-icon-moon" width="18" height="18" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                        <path d="M21 12.79A9 9 0 1111.21 3 7 7 0 0021 12.79z" stroke="#cfcfcf" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/>
+                    </svg>
+                </button>
+            </li>
+            <li class="profile-menu">
+                <button class="profile-btn" id="profile-btn"><span class="avatar">{{ user.username|slice:":1"|upper }}</span>{{ user.username }}</button>
+                <div class="profile-dropdown" id="profile-dropdown">
+                    <div class="profile-info">
+                        <p><strong>{{ user.username }}</strong></p>
+                        <p style="font-size: 0.9rem; color: #a0a0a0;">{{ user.email }}</p>
+                    </div>
+                    <form method="POST" action="{% url 'edit_profile' %}" style="padding: 0.6rem;">
+                        {% csrf_token %}
+                        <input type="hidden" name="action" value="password">
+                        <div style="margin-bottom:0.5rem;" class="password-wrap">
+                            <input type="password" name="old_password" placeholder="Current password" class="auth-input" required>
+                            <button type="button" class="password-toggle" aria-label="Show password" aria-pressed="false">
+                                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="1.6">
+                                    <g class="eye-open">
+                                        <path d="M1 12s4-7 11-7 11 7 11 7-4 7-11 7S1 12 1 12z" stroke-linecap="round" stroke-linejoin="round"></path>
+                                        <circle cx="12" cy="12" r="3" stroke-linecap="round" stroke-linejoin="round"></circle>
+                                    </g>
+                                    <g class="eye-closed">
+                                        <path d="M17.94 17.94A10.94 10.94 0 0112 19c-7 0-11-7-11-7a21.86 21.86 0 015-5.06" stroke-linecap="round" stroke-linejoin="round"></path>
+                                        <path d="M1 1l22 22" stroke-linecap="round" stroke-linejoin="round"></path>
+                                    </g>
+                                </svg>
+                            </button>
+                        </div>
+                        <div style="margin-bottom:0.5rem;" class="password-wrap">
+                            <input type="password" name="new_password1" placeholder="New password" class="auth-input" required>
+                            <button type="button" class="password-toggle" aria-label="Show password" aria-pressed="false">
+                                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="1.6">
+                                    <g class="eye-open">
+                                        <path d="M1 12s4-7 11-7 11 7 11 7-4 7-11 7S1 12 1 12z" stroke-linecap="round" stroke-linejoin="round"></path>
+                                        <circle cx="12" cy="12" r="3" stroke-linecap="round" stroke-linejoin="round"></circle>
+                                    </g>
+                                    <g class="eye-closed">
+                                        <path d="M17.94 17.94A10.94 10.94 0 0112 19c-7 0-11-7-11-7a21.86 21.86 0 015-5.06" stroke-linecap="round" stroke-linejoin="round"></path>
+                                        <path d="M1 1l22 22" stroke-linecap="round" stroke-linejoin="round"></path>
+                                    </g>
+                                </svg>
+                            </button>
+                        </div>
+                        <div style="margin-bottom:0.5rem;" class="password-wrap">
+                            <input type="password" name="new_password2" placeholder="Confirm new password" class="auth-input" required>
+                            <button type="button" class="password-toggle" aria-label="Show password" aria-pressed="false">
+                                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="1.6">
+                                    <g class="eye-open">
+                                        <path d="M1 12s4-7 11-7 11 7 11 7-4 7-11 7S1 12 1 12z" stroke-linecap="round" stroke-linejoin="round"></path>
+                                        <circle cx="12" cy="12" r="3" stroke-linecap="round" stroke-linejoin="round"></circle>
+                                    </g>
+                                    <g class="eye-closed">
+                                        <path d="M17.94 17.94A10.94 10.94 0 0112 19c-7 0-11-7-11-7a21.86 21.86 0 015-5.06" stroke-linecap="round" stroke-linejoin="round"></path>
+                                        <path d="M1 1l22 22" stroke-linecap="round" stroke-linejoin="round"></path>
+                                    </g>
+                                </svg>
+                            </button>
+                        </div>
+                        <div style="display:flex; gap:0.5rem; justify-content: flex-end;">
+                            <button type="submit" class="btn">Change</button>
+                            <button type="button" class="dropdown-item logout btn btn-cancel" onclick="showLogoutConfirm(event);">Logout</button>
+                        </div>
+                    </form>
+                </div>
+            </li>
+        </ul>
+    </nav>
+
+    <!-- Admin Container -->
+    <div class="admin-container">
+        <!-- Sidebar -->
+        <aside class="admin-sidebar">
+            <div class="sidebar-menu">
+                <a href="#movies" class="menu-item active" data-section="movies">
+                    Manage Movies
+                </a>
+                <a href="#archive" class="menu-item" data-section="archive">
+                    Archive
+                </a>
+                <a href="#ratings" class="menu-item" data-section="ratings">
+                    View Ratings
+                </a>
+                <a href="#users" class="menu-item" data-section="users">
+                    Users
+                </a>
+                <a href="#stats" class="menu-item" data-section="stats">
+                    Statistics
+                </a>
+            </div>
+        </aside>
+
+        <!-- Main Content -->
+        <main class="admin-content">
+            {% if messages %}
+                <div class="admin-messages">
+                    {% for message in messages %}
+                        <div class="admin-message">{{ message }}</div>
+                    {% endfor %}
+                </div>
+            {% endif %}
+            <!-- Movies Section -->
+            <section id="movies" class="admin-section active">
+                <div class="section-header">
+                    <h1>Manage Movies</h1>
+                    <div style="display:flex; gap:0.5rem; align-items:center;">
+                        <form id="admin-filter-form" method="get" style="margin:0; position:relative;">
+                            <input type="hidden" name="stats_range" value="{{ stats_range }}">
+                            <input type="hidden" name="stats_metric" value="{{ stats_metric }}">
+                            <input type="hidden" name="admin_genre" id="admin-genre-input" value="{{ admin_genre|default:'' }}">
+                            <input type="hidden" name="admin_year" id="admin-year-input" value="{{ admin_year|default:'' }}">
+                            <button type="button" id="admin-filter-btn" title="Filter movies" style="background:transparent; border:none; color:inherit; padding:0; margin:0; display:inline-flex; align-items:center; gap:0; cursor:pointer;">
+                                <!-- filter icon -->
+                                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M3 5h18" stroke="#cfcfcf" stroke-width="1.6" stroke-linecap="round"></path><path d="M7 12h10" stroke="#cfcfcf" stroke-width="1.6" stroke-linecap="round"></path><path d="M10 19h4" stroke="#cfcfcf" stroke-width="1.6" stroke-linecap="round"></path></svg>
+                            </button>
+                            <div id="admin-filter-dropdown" style="display:none; position:absolute; right:0; top:36px; background:#121212; border:1px solid #222; padding:10px; border-radius:6px; z-index:30; min-width:220px;">
+                                <div style="display:flex; gap:8px; align-items:center; margin-bottom:8px;">
+                                    <label for="admin-genre-select" style="color:#a0a0a0; min-width:48px;">Genre</label>
+                                    <select id="admin-genre-select" style="background:#141414; color:#e0e0e0; border:1px solid #222; padding:6px; flex:1;">
+                                        <option value="">All genres</option>
+                                        {% for g in available_genres %}
+                                            <option value="{{ g }}" {% if g == admin_genre %}selected{% endif %}>{{ g }}</option>
+                                        {% endfor %}
+                                    </select>
+                                </div>
+                                <div style="display:flex; gap:8px; align-items:center; margin-bottom:8px;">
+                                    <label for="admin-year-select" style="color:#a0a0a0; min-width:48px;">Year</label>
+                                    <select id="admin-year-select" style="background:#141414; color:#e0e0e0; border:1px solid #222; padding:6px; flex:1;">
+                                        <option value="">All years</option>
+                                        {% for y in available_years %}
+                                            <option value="{{ y }}" {% if y|stringformat:"s" == admin_year %}selected{% endif %}>{{ y }}</option>
+                                        {% endfor %}
+                                    </select>
+                                </div>
+                                <div style="display:flex; gap:0.5rem; justify-content:flex-end;">
+                                    <button type="button" id="admin-filter-clear" class="btn" style="background:#333;">Clear</button>
+                                    <button type="submit" id="admin-filter-apply" class="btn">Apply</button>
+                                </div>
+                            </div>
+                        </form>
+                        <button class="btn" id="add-movie-btn">+ Add New Movie</button>
+                    </div>
+                </div>
+
+                <!-- Add/Edit Movie Form Modal -->
+                <div id="movie-form" class="movie-modal" style="display: none;">
+                    <div class="modal-overlay"></div>
+                    <div class="modal-content">
+                        <button type="button" class="modal-close" id="modal-close-btn">&times;</button>
+                        <h2 id="form-title">Add New Movie</h2>
+                        <form method="POST" enctype="multipart/form-data" id="movie-form-element" action="/admin-panel/movie/add/">
+                            {% csrf_token %}
+                            <input type="hidden" id="edit-movie-id" name="edit_id" value="">
+                            
+                            <div class="form-group">
+                                <label for="title">Title</label>
+                                <input type="text" id="title" name="title" required value="">
+                            </div>
+
+                            <div class="form-row">
+                                <div class="form-group">
+                                    <label for="genre">Genre</label>
+                                    <input type="text" id="genre" name="genre" required value="">
+                                </div>
+                                <div class="form-group">
+                                    <label for="release_year">Release Year</label>
+                                    <input type="number" id="release_year" name="release_year" min="1900" max="2099" required value="">
+                                </div>
+                            </div>
+
+                            <div class="form-group">
+                                <label for="description">Description</label>
+                                <textarea id="description" name="description" rows="4" required></textarea>
+                            </div>
+
+                            <div class="form-group">
+                                <label for="poster">Poster Image</label>
+                                <div id="poster-preview" style="display:none; margin-bottom:10px;">
+                                    <img id="poster-preview-img" src="" alt="Current poster" style="max-width:100px; max-height:150px;">
+                                </div>
+                                <input type="file" id="poster" name="poster" accept="image/*">
+                                <small>Recommended: 200x300 pixels</small>
+                            </div>
+
+                            <div class="form-actions">
+                                <button type="submit" class="btn">Save Movie</button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+
+                <!-- Movies Table -->
+                <div class="table-container">
+                    <table class="admin-table">
+                        <thead>
+                            <tr>
+                                <th>Poster</th>
+                                <th>Title</th>
+                                <th>Genre</th>
+                                <th>Year</th>
+                                <th>Ratings</th>
+                                <th>Avg Rating</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for movie in movies %}
+                                <tr data-movie-id="{{ movie.id }}">
+                                    <td>
+                                        {% if movie.poster %}
+                                            <img src="{{ movie.poster.url }}" alt="{{ movie.title }}" class="table-poster">
+                                        {% else %}
+                                            <div class="no-poster">-</div>
+                                        {% endif %}
+                                    </td>
+                                    <td><strong>{{ movie.title }}</strong></td>
+                                    <td>{{ movie.genre }}</td>
+                                    <td>{{ movie.release_year }}</td>
+                                    <td>{{ movie.ratings.count }}</td>
+                                    <td>Rating: {{ movie.average_rating }}</td>
+                                    <td>
+                                        <a href="#" class="btn-small btn-edit" data-edit-id="{{ movie.id }}" data-edit-title="{{ movie.title|escape }}" data-edit-genre="{{ movie.genre }}" data-edit-year="{{ movie.release_year }}" data-edit-desc="{{ movie.description|default:''|escape }}" data-edit-poster="{% if movie.poster %}{{ movie.poster.url }}{% endif %}">Edit</a>
+                                        <a href="{% url 'archive_movie' movie.id %}" class="btn-small btn-archive archive-link" data-href="{% url 'archive_movie' movie.id %}" data-title="{{ movie.title|escape }}" data-id="{{ movie.id }}">Archive</a>
+                                    </td>
+                                </tr>
+                            {% empty %}
+                                <tr>
+                                    <td colspan="7" style="text-align: center; color: #a0a0a0;">No movies yet. Click "Add New Movie" to get started.</td>
+                                </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </section>
+
+            <!-- Archive Section -->
+            <section id="archive" class="admin-section">
+                <div class="section-header">
+                    <h1>Archived Movies</h1>
+                    <p style="color: #a0a0a0; font-size: 0.9rem; margin-top: 0.5rem;">Archived movies will be automatically deleted after 30 days.</p>
+                </div>
+
+                <div class="table-container">
+                    <table class="admin-table">
+                        <thead>
+                            <tr>
+                                <th>Poster</th>
+                                <th>Title</th>
+                                <th>Genre</th>
+                                <th>Year</th>
+                                <th>Archived Date</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for movie in archived_movies %}
+                                <tr data-movie-id="{{ movie.id }}">
+                                    <td>
+                                        {% if movie.poster %}
+                                            <img src="{{ movie.poster.url }}" alt="{{ movie.title }}" class="table-poster">
+                                        {% else %}
+                                            <div class="no-poster">-</div>
+                                        {% endif %}
+                                    </td>
+                                    <td><strong>{{ movie.title }}</strong></td>
+                                    <td>{{ movie.genre }}</td>
+                                    <td>{{ movie.release_year }}</td>
+                                    <td><small>{{ movie.archived_at|date:"M d, Y H:i" }}</small></td>
+                                    <td>
+                                        <button type="button" class="btn-small btn-edit restore-link" data-href="{% url 'restore_movie' movie.id %}" data-id="{{ movie.id }}" data-title="{{ movie.title|escape }}">Retrieve</button>
+                                        <button type="button" class="btn-small btn-delete delete-archived-link" data-href="{% url 'permanently_delete_movie' movie.id %}" data-id="{{ movie.id }}" data-title="{{ movie.title|escape }}">Delete</button>
+                                    </td>
+                                </tr>
+                            {% empty %}
+                                <tr>
+                                    <td colspan="6" style="text-align: center; color: #a0a0a0;">No archived movies.</td>
+                                </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </section>
+
+            <!-- Ratings Section -->
+            <section id="ratings" class="admin-section">
+                <div class="section-header">
+                    <h1>View Ratings</h1>
+                </div>
+
+                <div class="table-container">
+                    <table class="admin-table">
+                        <thead>
+                            <tr>
+                                <th>User</th>
+                                <th>Movie</th>
+                                <th>Rating</th>
+                                <th>Date</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for rating in ratings %}
+                                <tr>
+                                    <td>{{ rating.user.username }}</td>
+                                    <td>{{ rating.movie.title }}</td>
+                                    <td>{{ rating.value }}/5</td>
+                                    <td><small>Recent</small></td>
+                                </tr>
+                            {% empty %}
+                                <tr>
+                                    <td colspan="4" style="text-align: center; color: #a0a0a0;">No ratings yet.</td>
+                                </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </section>
+
+            <!-- Users Section -->
+            <section id="users" class="admin-section">
+                <div class="section-header">
+                    <h1>Users</h1>
+                </div>
+
+                <div class="table-container">
+                    <table class="admin-table">
+                        <thead>
+                            <tr>
+                                <th>Username</th>
+                                <th>Email</th>
+                                <th>Ratings Given</th>
+                                <th>Joined</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for user in users %}
+                                <tr>
+                                    <td>{{ user.username }}</td>
+                                    <td>{{ user.email }}</td>
+                                    <td>{{ user.rating_set.count }}</td>
+                                    <td><small>{{ user.date_joined|date:"M d, Y" }}</small></td>
+                                </tr>
+                            {% empty %}
+                                <tr>
+                                    <td colspan="4" style="text-align: center; color: #a0a0a0;">No users yet.</td>
+                                </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </section>
+
+            <!-- Statistics Section -->
+            <section id="stats" class="admin-section">
+                <div class="section-header">
+                    <h1>Statistics</h1>
+                </div>
+
+                <div class="stats-grid">
+                    <div class="stat-card">
+                        <div class="stat-number">{{ movies|length }}</div>
+                        <div class="stat-label">Total Movies</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-number">{{ ratings|length }}</div>
+                        <div class="stat-label">Total Ratings</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-number">{{ users|length }}</div>
+                        <div class="stat-label">Total Users</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-number">{{ avg_rating }}</div>
+                        <div class="stat-label">Average Rating</div>
+                    </div>
+                </div>
+
+                <!-- Ratings activity chart -->
+                <div style="margin-top:1.25rem; padding:0 1rem 2rem 1rem;">
+                    <div style="display:flex; align-items:center; justify-content:space-between; gap:1rem;">
+                        <h2 style="margin:0;">Rating Activity</h2>
+                        <form method="get" id="stats-range-form" style="margin:0; position:relative;">
+                            <input type="hidden" name="stats_range" id="stats-range-input" value="{{ stats_range|default:'weekly' }}">
+                            <span id="stats-metric-label" style="margin-left:8px; color:#a0a0a0; font-size:0.95rem;">Active Users</span>
+                            <button type="button" id="stats-range-btn" aria-haspopup="true" aria-expanded="false" title="Filter range" style="display:flex; align-items:center; gap:0.5rem; background:none; border:none; padding:4px 6px; border-radius:4px; color:#e0e0e0; line-height:1;">
+                                <!-- simple funnel/filter icon -->
+                                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" style="flex-shrink:0;">
+                                    <path d="M3 5h18" stroke="#cfcfcf" stroke-width="1.6" stroke-linecap="round"></path>
+                                    <path d="M7 12h10" stroke="#cfcfcf" stroke-width="1.6" stroke-linecap="round"></path>
+                                    <path d="M10 19h4" stroke="#cfcfcf" stroke-width="1.6" stroke-linecap="round"></path>
+                                </svg>
+                                <span id="stats-range-label" style="font-size:0.95rem; color:#a0a0a0; text-transform:capitalize;">{{ stats_range|default:'weekly' }}</span>
+                            </button>
+                            <div id="stats-range-dropdown" style="display:none; position:absolute; right:0; top:32px; background:#121212; border:1px solid #222; padding:6px; border-radius:6px; z-index:30; min-width:140px;">
+                                <button type="button" class="stats-range-option" data-value="weekly" style="display:block; width:100%; text-align:left; padding:6px 8px; background:transparent; border:none; color:#e0e0e0;">Weekly</button>
+                                <button type="button" class="stats-range-option" data-value="monthly" style="display:block; width:100%; text-align:left; padding:6px 8px; background:transparent; border:none; color:#e0e0e0;">Monthly</button>
+                                <button type="button" class="stats-range-option" data-value="yearly" style="display:block; width:100%; text-align:left; padding:6px 8px; background:transparent; border:none; color:#e0e0e0;">Yearly</button>
+                            </div>
+                        </form>
+                    </div>
+
+                    <!-- Small top legend (0-5 engagement scale) -->
+                    <div style="margin-top:0.75rem; margin-bottom:0.5rem; color:#cfcfcf; font-size:0.85rem; display:flex; gap:1rem; align-items:center;">
+                        <strong style="color:#e0e0e0; min-width:60px;">Legend</strong>
+                        <div style="display:flex; gap:10px; align-items:center; flex-wrap:wrap;">
+                            <span class="legend-item" data-tooltip="Maximum activity or rating. The system is fully utilized or movies are highly rated." style="font-weight:700; cursor:help;">5</span>
+                            <span style="color:#a0a0a0;">Maximum</span>
+
+                            <span class="legend-item" data-tooltip="High activity/rating, but slightly below maximum." style="font-weight:700; cursor:help;">4</span>
+                            <span style="color:#a0a0a0;">High</span>
+
+                            <span class="legend-item" data-tooltip="Moderate activity/rating. Users are engaging, but not at peak." style="font-weight:700; cursor:help;">3</span>
+                            <span style="color:#a0a0a0;">Moderate</span>
+
+                            <span class="legend-item" data-tooltip="Low activity/rating. System is underutilized." style="font-weight:700; cursor:help;">2</span>
+                            <span style="color:#a0a0a0;">Low</span>
+
+                            <span class="legend-item" data-tooltip="Very low or no activity. The system is barely being used." style="font-weight:700; cursor:help;">0–1</span>
+                            <span style="color:#a0a0a0;">Very Low</span>
+                        </div>
+                    </div>
+
+                    <div id="chart-container" style="margin-top:0.25rem; background:#121212; border:1px solid #222; padding:1rem; border-radius:8px;">
+                        <canvas id="ratingsChart" width="800" height="300" style="width:100%; max-width:900px;"></canvas>
+                    </div>
+                </div>
+            </section>
+            
+            <!-- Profile section moved to nav header dropdown for admins -->
+        </main>
+    </div>
+
+    <script>
+        // Helper function to get CSRF token from cookie
+        function getCookie(name) {
+            let cookieValue = null;
+            if (document.cookie && document.cookie !== '') {
+                const cookies = document.cookie.split(';');
+                for (let i = 0; i < cookies.length; i++) {
+                    const cookie = cookies[i].trim();
+                    if (cookie.substring(0, name.length + 1) === (name + '=')) {
+                        cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                        break;
+                    }
+                }
+            }
+            return cookieValue;
+        }
+
+        // Tab switching with hash support so reload preserves the current section
+        function activateSection(sectionId) {
+            if (!sectionId) sectionId = 'movies';
+            // remove leading # if present
+            if (sectionId.startsWith('#')) sectionId = sectionId.slice(1);
+            const target = document.getElementById(sectionId);
+            if (!target) return;
+
+            document.querySelectorAll('.menu-item').forEach(m => m.classList.remove('active'));
+            document.querySelectorAll('.admin-section').forEach(s => s.classList.remove('active'));
+
+            const menuItem = document.querySelector(`.menu-item[data-section="${sectionId}"]`);
+            if (menuItem) menuItem.classList.add('active');
+            target.classList.add('active');
+        }
+
+        document.querySelectorAll('.menu-item').forEach(item => {
+            item.addEventListener('click', (e) => {
+                e.preventDefault();
+                const sectionId = item.getAttribute('data-section');
+                // update the hash so reload keeps the same section
+                try { location.hash = sectionId; } catch (ex) {}
+                activateSection(sectionId);
+            });
+        });
+
+        // On load, activate based on hash (if present) otherwise keep default
+        document.addEventListener('DOMContentLoaded', function() {
+            const hash = window.location.hash || '#movies';
+            activateSection(hash);
+            
+            // Ensure the movie form is properly reset and hidden on page load
+            const movieForm = document.getElementById('movie-form-element');
+            if (movieForm) {
+                movieForm.reset();
+            }
+            const movieFormDiv = document.getElementById('movie-form');
+            if (movieFormDiv) {
+                movieFormDiv.style.display = 'none';
+            }
+            const formTitle = document.getElementById('form-title');
+            if (formTitle) {
+                formTitle.textContent = 'Add New Movie';
+            }
+        });
+
+        // Edit movie button handler (delegate to dynamically added buttons)
+        document.addEventListener('click', function(e) {
+            if (!e.target.classList.contains('btn-edit') || !e.target.hasAttribute('data-edit-id')) return;
+            e.preventDefault();
+            const movieId = e.target.getAttribute('data-edit-id');
+            const movieTitle = e.target.getAttribute('data-edit-title') || '';
+            const movieGenre = e.target.getAttribute('data-edit-genre') || '';
+            const movieYear = e.target.getAttribute('data-edit-year') || '';
+            const movieDesc = e.target.getAttribute('data-edit-desc') || '';
+            const posterUrl = e.target.getAttribute('data-edit-poster') || '';
+            
+            const form = document.getElementById('movie-form-element');
+            form.reset();
+            document.getElementById('edit-movie-id').value = movieId;
+            document.getElementById('title').value = movieTitle;
+            document.getElementById('genre').value = movieGenre;
+            document.getElementById('release_year').value = movieYear;
+            document.getElementById('description').value = movieDesc;
+            
+            // Show/hide poster preview
+            const posterPreview = document.getElementById('poster-preview');
+            if (posterUrl) {
+                document.getElementById('poster-preview-img').src = posterUrl;
+                posterPreview.style.display = 'block';
+            } else {
+                posterPreview.style.display = 'none';
+            }
+            
+            document.getElementById('form-title').textContent = 'Edit Movie';
+            form.action = `/admin-panel/movie/edit/${movieId}/`;
+            document.getElementById('movie-form').style.display = 'flex';
+        });
+
+        // Add movie button
+        document.getElementById('add-movie-btn').addEventListener('click', () => {
+            const form = document.getElementById('movie-form-element');
+            form.reset();
+            document.getElementById('edit-movie-id').value = '';
+            document.getElementById('poster-preview').style.display = 'none';
+            document.getElementById('movie-form').style.display = 'flex';
+            document.getElementById('form-title').textContent = 'Add New Movie';
+            // Ensure form posts to add endpoint
+            form.action = '/admin-panel/movie/add/';
+        });
+
+        // Close modal handlers
+        function closeModal() {
+            const form = document.getElementById('movie-form-element');
+            form.reset();
+            document.getElementById('movie-form').style.display = 'none';
+        }
+        document.getElementById('modal-close-btn').addEventListener('click', closeModal);
+        
+        // Close modal when clicking overlay
+        document.getElementById('movie-form').addEventListener('click', (e) => {
+            if (e.target.classList.contains('modal-overlay')) closeModal();
+        });
+        
+        // Submit the movie form via fetch with an explicit CSRF token refresh.
+        // This avoids relying on a possibly rotated token after a login in another tab.
+        (function(){
+            const form = document.getElementById('movie-form-element');
+            if (!form) return;
+            form.addEventListener('submit', function(ev){
+                ev.preventDefault();
+                const action = form.action;
+                const formData = new FormData(form);
+
+                // Always refresh CSRF token before sending to be robust against rotation.
+                fetch('{% url "csrf_token" %}', { credentials: 'same-origin' })
+                    .then(r => r.json())
+                    .then(data => {
+                        const token = data && data.csrfToken;
+                        if (!token) throw new Error('No CSRF token from server');
+                        formData.set('csrfmiddlewaretoken', token);
+                        return fetch(action, {
+                            method: 'POST',
+                            body: formData,
+                            credentials: 'same-origin',
+                            headers: {
+                                'X-Requested-With': 'XMLHttpRequest'
+                            }
+                        });
+                    })
+                    .then(response => {
+                        if (!response) throw new Error('No response');
+                        const ct = response.headers.get('content-type') || '';
+                        if (ct.indexOf('application/json') !== -1) {
+                            return response.json().then(json => ({ json, response }));
+                        }
+                        return { json: null, response };
+                    })
+                    .then(({ json, response }) => {
+                        if (json && json.status === 'ok') {
+                            const editId = document.getElementById('edit-movie-id').value;
+                            const isEditing = editId && editId !== '';
+
+                            if (isEditing) {
+                                // Update existing row
+                                const titleVal = form.querySelector('#title').value || '';
+                                const genreVal = form.querySelector('#genre').value || '';
+                                const yearVal = form.querySelector('#release_year').value || '';
+                                const row = document.querySelector(`tr[data-movie-id="${editId}"]`);
+                                if (row) {
+                                    const cells = row.querySelectorAll('td');
+                                    // Update poster image if provided in response
+                                    if (json.poster && cells[0]) {
+                                        cells[0].innerHTML = `<img src="${json.poster}" alt="${titleVal}" class="table-poster">`;
+                                    }
+                                    if (cells[1]) cells[1].textContent = titleVal;
+                                    if (cells[2]) cells[2].textContent = genreVal;
+                                    if (cells[3]) cells[3].textContent = yearVal;
+                                }
+                                // Show success notification
+                                let msgWrap = document.querySelector('.admin-messages');
+                                if (!msgWrap) {
+                                    msgWrap = document.createElement('div');
+                                    msgWrap.className = 'admin-messages';
+                                    const mainContent = document.querySelector('main.admin-content');
+                                    if (mainContent) mainContent.insertBefore(msgWrap, mainContent.firstChild);
+                                }
+                                if (msgWrap) {
+                                    const m = document.createElement('div'); m.className = 'admin-message'; m.textContent = `Edited: ${titleVal}`; msgWrap.insertBefore(m, msgWrap.firstChild);
+                                    setTimeout(()=>{ try { m.remove(); } catch(e){} }, 3000);
+                                }
+                            } else {
+                                // Insert a new row for adding
+                                try {
+                                    const moviesTbody = document.querySelector('#movies table.admin-table tbody') || document.querySelector('section#movies tbody');
+                                    const titleVal = form.querySelector('#title').value || '';
+                                    const genreVal = form.querySelector('#genre').value || '';
+                                    const yearVal = form.querySelector('#release_year').value || '';
+                                    const posterHtml = json.poster ? `<img src="${json.poster}" alt="${titleVal}" class="table-poster">` : '<div class="no-poster">-</div>';
+                                    const mtr = document.createElement('tr');
+                                    mtr.setAttribute('data-movie-id', json.id);
+                                    mtr.innerHTML = `
+                                        <td>${posterHtml}</td>
+                                        <td>${titleVal}</td>
+                                        <td>${genreVal}</td>
+                                        <td>${yearVal}</td>
+                                        <td>0</td>
+                                        <td>Rating: 0</td>
+                                        <td>
+                                            <a href="#" class="btn-small btn-edit" data-edit-id="${json.id}" data-edit-title="${titleVal}" data-edit-genre="${genreVal}" data-edit-year="${yearVal}" data-edit-desc="" data-edit-poster="${json.poster || ''}">Edit</a>
+                                            <a href="/admin-panel/movie/archive/${json.id}/" class="btn-small btn-archive archive-link" data-href="/admin-panel/movie/archive/${json.id}/" data-id="${json.id}" data-title="${json.title}">Archive</a>
+                                        </td>
+                                    `;
+                                    if (moviesTbody) moviesTbody.insertBefore(mtr, moviesTbody.firstChild);
+                                } catch (err) { console.debug('Could not insert new movie row', err); }
+
+                                // Broadcast to other tabs (user pages) so they can update without refresh
+                                try {
+                                    const addedData = {
+                                        id: json.id,
+                                        title: json.title,
+                                        genre: genreVal,
+                                        release_year: yearVal,
+                                        description: form.querySelector('#description') ? form.querySelector('#description').value : '',
+                                        poster: json.poster || '',
+                                        ts: Date.now()
+                                    };
+                                    // Use a timestamp so repeated adds always change the stored value
+                                    localStorage.setItem('moviehub:movie-added', JSON.stringify(addedData));
+                                    // Remove the key shortly after to keep localStorage tidy and allow future identical payloads
+                                    setTimeout(() => { try { localStorage.removeItem('moviehub:movie-added'); } catch(_){} }, 800);
+                                    
+                                    // Also trigger a beacon to wake up any dashboard pages that might be using polling
+                                    // Store a timestamp so dashboard pages can detect activity
+                                    localStorage.setItem('moviehub:admin-activity', Date.now().toString());
+                                } catch (e) { console.debug('localStorage broadcast failed', e); }
+
+                                // Show success notification
+                                let msgWrap = document.querySelector('.admin-messages');
+                                if (!msgWrap) {
+                                    msgWrap = document.createElement('div');
+                                    msgWrap.className = 'admin-messages';
+                                    const mainContent = document.querySelector('main.admin-content');
+                                    if (mainContent) mainContent.insertBefore(msgWrap, mainContent.firstChild);
+                                }
+                                if (msgWrap) {
+                                    const m = document.createElement('div'); m.className = 'admin-message'; m.textContent = `Added: ${json.title}`; msgWrap.insertBefore(m, msgWrap.firstChild);
+                                    setTimeout(()=>{ try { m.remove(); } catch(e){} }, 3000);
+                                }
+                            }
+                            // Reset and hide form immediately
+                            form.reset();
+                            document.getElementById('movie-form').style.display = 'none';
+                            document.getElementById('form-title').textContent = 'Add New Movie';
+                        } else {
+                            // If server didn't return JSON, likely did a redirect — reload to reflect changes
+                            window.location.reload();
+                        }
+                    })
+                    .catch(err => {
+                        console.error('Movie submit failed', err);
+                        alert('Could not submit the movie. Please reload the page and try again.');
+                    });
+            });
+        })();
+    </script>
+    <!-- Confirm modal for restore / permanent delete actions -->
+    <div id="admin-confirm-modal" class="movie-modal" style="display:none;">
+        <div class="modal-overlay"></div>
+        <div class="modal-content" style="max-width:520px;">
+            <button type="button" class="modal-close" id="admin-confirm-close">&times;</button>
+            <h2 id="admin-confirm-title">Are you sure?</h2>
+            <p id="admin-confirm-body" style="color:#d0d0d0;">This action cannot be undone.</p>
+            <div style="display:flex; gap:0.5rem; justify-content:flex-end; margin-top:1rem;">
+                <button type="button" class="btn btn-cancel" id="admin-confirm-cancel">Cancel</button>
+                <button type="button" class="btn" id="admin-confirm-ok">Yes, proceed</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Admin archive restore / delete confirmation modal
+        (function(){
+            const modal = document.getElementById('admin-confirm-modal');
+            const overlay = modal ? modal.querySelector('.modal-overlay') : null;
+            const titleEl = document.getElementById('admin-confirm-title');
+            const bodyEl = document.getElementById('admin-confirm-body');
+            const okBtn = document.getElementById('admin-confirm-ok');
+            const cancelBtn = document.getElementById('admin-confirm-cancel');
+            const closeBtn = document.getElementById('admin-confirm-close');
+            let current = null; // { href, id, type }
+
+            function open(data){
+                current = data;
+                if (!modal) return;
+                if (data.type === 'restore'){
+                    titleEl.textContent = `Retrieve movie: ${data.title}`;
+                    bodyEl.textContent = 'This will restore the movie back to the main catalogue. Continue?';
+                    okBtn.textContent = 'Confirm';
+                } else if (data.type === 'archive'){
+                    titleEl.textContent = `Archive movie: ${data.title}`;
+                    bodyEl.textContent = 'This will move the movie to the archive. It can be restored from the Archive section.';
+                    okBtn.textContent = 'Archive';
+                } else {
+                    titleEl.textContent = `Permanently delete: ${data.title}`;
+                    bodyEl.textContent = 'This will permanently delete the movie from the database. This cannot be undone.';
+                    okBtn.textContent = 'Delete';
+                }
+                // show as flex so the modal is centered by CSS
+                modal.style.display = 'flex';
+            }
+            function close(){
+                if (!modal) return;
+                modal.style.display = 'none';
+                current = null;
+            }
+
+            // delegate clicks on restore / delete / archive links (robust: handle clicks on child nodes)
+            document.addEventListener('click', function(e){
+                // find nearest element node
+                let node = e.target;
+                while (node && node.nodeType !== 1) node = node.parentNode;
+                if (!node) return;
+                const el = node.closest('.restore-link, .delete-archived-link, .archive-link');
+                if (!el) return;
+                e.preventDefault();
+                const href = el.dataset.href || el.getAttribute('href');
+                const id = el.dataset.id;
+                const title = el.dataset.title || '';
+                const type = el.classList.contains('restore-link') ? 'restore' : (el.classList.contains('archive-link') ? 'archive' : 'delete');
+                open({ href, id, title, type });
+            });
+
+            function fetchCsrf(){
+                return fetch('{% url "csrf_token" %}', { credentials: 'same-origin' })
+                    .then(r => r.json())
+                    .then(j => j && j.csrfToken ? j.csrfToken : null);
+            }
+
+            async function performAction(){
+                if (!current) return;
+                try {
+                    const token = await fetchCsrf();
+                    if (!token) throw new Error('No CSRF token');
+                    const formData = new FormData();
+                    formData.set('csrfmiddlewaretoken', token);
+
+                    const res = await fetch(current.href, {
+                        method: 'POST',
+                        credentials: 'same-origin',
+                        headers: { 'X-Requested-With': 'XMLHttpRequest' },
+                        body: formData
+                    });
+                    if (!res.ok) throw new Error('Server error');
+                    const data = await res.json();
+                    console.debug('ADMIN: performAction response data', data, 'current.type', current && current.type);
+
+                    if (current.type === 'archive') {
+                        // ARCHIVE operation: move from movies table to archive table
+                        try {
+                            console.debug('ADMIN: handling archive for id', current.id);
+                            
+                            // Get the movie row from the movies table
+                            const moviesRow = document.querySelector(`#movies table.admin-table tbody tr[data-movie-id="${current.id}"]`);
+                            if (moviesRow) {
+                                const cells = moviesRow.querySelectorAll('td');
+                                
+                                // Extract data from the movies table row
+                                const posterHtml = cells[0] ? cells[0].innerHTML : '';
+                                const titleHtml = cells[1] ? cells[1].innerHTML : `<strong>${current.title}</strong>`;
+                                const genreHtml = cells[2] ? cells[2].innerHTML : '';
+                                const yearHtml = cells[3] ? cells[3].innerHTML : '';
+                                
+                                // Get current date/time for archived_at
+                                const now = new Date();
+                                const archivedDate = now.toLocaleDateString('en-US', { year: 'numeric', month: 'short', day: 'numeric' }) + ' ' + 
+                                                    now.toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit', hour12: false });
+                                
+                                // Create archive table row
+                                const archiveTbody = document.querySelector('#archive table.admin-table tbody');
+                                if (archiveTbody) {
+                                    // Check if movie already exists in archive (shouldn't, but be safe)
+                                    const existing = archiveTbody.querySelector(`tr[data-movie-id="${current.id}"]`);
+                                    if (!existing) {
+                                        const archiveRow = document.createElement('tr');
+                                        archiveRow.setAttribute('data-movie-id', current.id);
+                                        archiveRow.innerHTML = `
+                                            <td>${posterHtml}</td>
+                                            <td>${titleHtml}</td>
+                                            <td>${genreHtml}</td>
+                                            <td>${yearHtml}</td>
+                                            <td><small>${archivedDate}</small></td>
+                                            <td>
+                                                <button type="button" class="btn-small btn-edit restore-link" data-href="/admin-panel/movie/restore/${current.id}/" data-id="${current.id}" data-title="${current.title}">Retrieve</button>
+                                                <button type="button" class="btn-small btn-delete delete-archived-link" data-href="/admin-panel/movie/permanently-delete/${current.id}/" data-id="${current.id}" data-title="${current.title}">Delete</button>
+                                            </td>
+                                        `;
+                                        
+                                        // Check if there's an empty-state placeholder and replace it, or append
+                                        const emptyRow = archiveTbody.querySelector('tr:not([data-movie-id])');
+                                        if (emptyRow) {
+                                            emptyRow.replaceWith(archiveRow);
+                                            console.debug('ADMIN: replaced empty-state placeholder with archive row');
+                                        } else {
+                                            archiveTbody.appendChild(archiveRow);
+                                            console.debug('ADMIN: appended archive row');
+                                        }
+                                    }
+                                }
+                                
+                                // Remove from movies table
+                                moviesRow.remove();
+                                console.debug('ADMIN: removed movie from movies table');
+                            }
+                            
+                            // Broadcast archive to dashboard pages
+                            try {
+                                const archiveData = {
+                                    id: current.id,
+                                    title: current.title,
+                                    action: 'archived',
+                                    ts: Date.now()
+                                };
+                                console.debug('ADMIN: broadcasting archive', archiveData);
+                                localStorage.setItem('moviehub:movie-archived', JSON.stringify(archiveData));
+                                window.dispatchEvent(new CustomEvent('moviehub:archived', { detail: archiveData }));
+                                setTimeout(() => { try { localStorage.removeItem('moviehub:movie-archived'); } catch(_){} }, 2000);
+                                localStorage.setItem('moviehub:admin-activity', Date.now().toString());
+                                try {
+                                    if (typeof BroadcastChannel !== 'undefined') {
+                                        const bc = new BroadcastChannel('moviehub');
+                                        bc.postMessage({ type: 'archived', data: archiveData });
+                                        bc.close();
+                                    }
+                                } catch (e) { console.debug('BroadcastChannel archive failed', e); }
+                            } catch (e) { console.debug('ADMIN: localStorage archive broadcast failed', e); }
+                        } catch(e) { console.debug('archive DOM update failed', e); }
+                    } else if (current.type === 'delete') {
+                        // DELETE operation: just remove from archive table and broadcast deletion
+                        try {
+                            console.debug('ADMIN: handling delete for id', current.id);
+                            // Remove archived rows for this movie
+                            const archivedRows = Array.from(document.querySelectorAll(`#archive table.admin-table tbody tr[data-movie-id="${current.id}"]`));
+                            console.debug('ADMIN: removing archived rows count', archivedRows.length, 'for id', current.id);
+                            archivedRows.forEach(r => { try { r.remove(); } catch(_){} });
+
+                            // If archive table now has no movie rows, manage the empty-state placeholder
+                            try {
+                                const atbody = document.querySelector('#archive table.admin-table tbody');
+                                if (atbody) {
+                                    // Check if there are any movie rows left
+                                    const hasMovies = atbody.querySelector('tr[data-movie-id]');
+                                    // Check if empty-state placeholder already exists
+                                    const emptyRow = atbody.querySelector('tr:not([data-movie-id])');
+                                    
+                                    if (!hasMovies) {
+                                        // No movies left - ensure placeholder exists
+                                        if (!emptyRow) {
+                                            const placeholderTr = document.createElement('tr');
+                                            placeholderTr.innerHTML = '<td colspan="6" style="text-align: center; color: #a0a0a0;">No archived movies.</td>';
+                                            atbody.appendChild(placeholderTr);
+                                            console.debug('ADMIN: inserted empty-state placeholder');
+                                        }
+                                    } else if (emptyRow) {
+                                        // Movies still exist but empty-state placeholder is showing - remove it
+                                        emptyRow.remove();
+                                        console.debug('ADMIN: removed empty-state placeholder');
+                                    }
+                                }
+                            } catch(_){}
+
+                            // Broadcast deletion to dashboard pages
+                            try {
+                                const deleteData = {
+                                    id: current.id,
+                                    title: current.title,
+                                    action: 'deleted',
+                                    ts: Date.now()
+                                };
+                                console.debug('ADMIN: broadcasting delete', deleteData);
+                                localStorage.setItem('moviehub:movie-deleted', JSON.stringify(deleteData));
+                                window.dispatchEvent(new CustomEvent('moviehub:deleted', { detail: deleteData }));
+                                setTimeout(() => { try { localStorage.removeItem('moviehub:movie-deleted'); } catch(_){} }, 2000);
+                                localStorage.setItem('moviehub:admin-activity', Date.now().toString());
+                                try {
+                                    if (typeof BroadcastChannel !== 'undefined') {
+                                        const bc = new BroadcastChannel('moviehub');
+                                        bc.postMessage({ type: 'deleted', data: deleteData });
+                                        bc.close();
+                                    }
+                                } catch (e) { console.debug('BroadcastChannel delete failed', e); }
+                            } catch (e) { console.debug('ADMIN: localStorage delete broadcast failed', e); }
+                        } catch(e) { console.debug('delete DOM update failed', e); }
+                    } else {
+                        // RESTORE operation: move from archive back to movies table
+                        try {
+                            console.debug('ADMIN: looking for archived rows for id', current.id);
+                            // collect any archive rows matching this id (there may be 0..n depending on prior renders)
+                            const archivedRows = Array.from(document.querySelectorAll(`#archive table.admin-table tbody tr[data-movie-id="${current.id}"]`));
+
+                            // try to derive poster HTML and src from the first archived row, or from response
+                            let posterHtml = '';
+                            let posterSrc = '';
+                            if (archivedRows.length) {
+                                const srcRow = archivedRows[0];
+                                const cells = srcRow.querySelectorAll('td');
+                                posterHtml = cells[0] ? cells[0].innerHTML : '';
+                                try {
+                                    const img = cells[0] ? cells[0].querySelector('img') : null;
+                                    if (img) posterSrc = img.src || img.getAttribute('src') || '';
+                                } catch(_) { posterSrc = ''; }
+                            }
+
+                            // fallback: if server provided a poster URL, use that
+                            if ((!posterHtml || posterHtml.trim() === '') && data && data.poster) {
+                                posterSrc = data.poster;
+                                posterHtml = `<img src="${data.poster}" alt="${data.title || ''}" class="table-poster">`;
+                            }
+
+                            const titleHtml = data.title ? `<strong>${data.title}</strong>` : (archivedRows[0] && archivedRows[0].querySelectorAll('td')[1] ? archivedRows[0].querySelectorAll('td')[1].innerHTML : '');
+                            const genreHtml = data.genre || (archivedRows[0] && archivedRows[0].querySelectorAll('td')[2] ? archivedRows[0].querySelectorAll('td')[2].innerHTML : '');
+                            const yearHtml = data.release_year || (archivedRows[0] && archivedRows[0].querySelectorAll('td')[3] ? archivedRows[0].querySelectorAll('td')[3].innerHTML : '');
+                            const ratingCountHtml = (data.rating_count !== undefined) ? data.rating_count : 0;
+                            const ratingHtml = (data.average_rating !== undefined && data.average_rating > 0) ? `Rating: ${data.average_rating}` : 'Rating: 0';
+
+                            // Build / insert into Movies table (avoid duplicates)
+                            const moviesTbody = document.querySelector('#movies table.admin-table tbody') || document.querySelector('section#movies tbody');
+                            if (moviesTbody) {
+                                console.debug('ADMIN: inserting/updating movie id', data.id, 'posterSrc', posterSrc);
+                                const existing = moviesTbody.querySelector(`tr[data-movie-id="${data.id}"]`);
+                                if (!existing) {
+                                    const mtr = document.createElement('tr');
+                                    mtr.setAttribute('data-movie-id', data.id);
+                                    mtr.innerHTML = `
+                                        <td>${posterHtml}</td>
+                                        <td>${titleHtml}</td>
+                                        <td>${genreHtml}</td>
+                                        <td>${yearHtml}</td>
+                                        <td>${ratingCountHtml}</td>
+                                        <td>${ratingHtml}</td>
+                                        <td>
+                                            <a href="#" class="btn-small btn-edit" data-edit-id="${data.id}" data-edit-title="${data.title || ''}" data-edit-genre="${data.genre || ''}" data-edit-year="${data.release_year || ''}" data-edit-desc="${(data.description||'')}">Edit</a>
+                                            <a href="/admin-panel/movie/archive/${data.id}/" class="btn-small btn-archive archive-link" data-href="/admin-panel/movie/archive/${data.id}/" data-id="${data.id}" data-title="${data.title || ''}">Archive</a>
+                                        </td>
+                                    `;
+                                    moviesTbody.insertBefore(mtr, moviesTbody.firstChild);
+                                } else {
+                                    // update existing row cells where possible
+                                    try {
+                                        if (posterHtml && existing.cells && existing.cells[0]) existing.cells[0].innerHTML = posterHtml;
+                                        if (data.title && existing.cells && existing.cells[1]) existing.cells[1].innerHTML = `<strong>${data.title}</strong>`;
+                                        if (data.genre && existing.cells && existing.cells[2]) existing.cells[2].innerText = data.genre;
+                                        if (data.release_year && existing.cells && existing.cells[3]) existing.cells[3].innerText = data.release_year;
+                                        if (ratingCountHtml !== undefined && existing.cells && existing.cells[4]) existing.cells[4].innerText = ratingCountHtml;
+                                        if (ratingHtml && existing.cells && existing.cells[5]) existing.cells[5].innerText = ratingHtml;
+                                    } catch(_){}
+                                }
+                            }
+
+                            // Remove any archived rows we found (if none were found this is a no-op)
+                            console.debug('ADMIN: removing archived rows count', archivedRows.length, 'for id', current.id);
+                            archivedRows.forEach(r => { try { r.remove(); } catch(_){} });
+                            
+                            // If archive table now has no movie rows, manage the empty-state placeholder
+                            try {
+                                const atbody = document.querySelector('#archive table.admin-table tbody');
+                                if (atbody) {
+                                    // Check if there are any movie rows left
+                                    const hasMovies = atbody.querySelector('tr[data-movie-id]');
+                                    if (!hasMovies) {
+                                        // No movies left - ensure placeholder exists
+                                        const emptyRow = atbody.querySelector('tr:not([data-movie-id])');
+                                        if (!emptyRow) {
+                                            const placeholderTr = document.createElement('tr');
+                                            placeholderTr.innerHTML = '<td colspan="6" style="text-align: center; color: #a0a0a0;">No archived movies.</td>';
+                                            atbody.appendChild(placeholderTr);
+                                            console.debug('ADMIN: inserted empty-state placeholder after restore');
+                                        }
+                                    }
+                                }
+                            } catch(_){}
+                            
+                            // Also defensively remove any existing rows in the Movies table with the same id to avoid duplicates
+                            try {
+                                const duplicateInMovies = Array.from(document.querySelectorAll(`#movies table.admin-table tbody tr[data-movie-id="${data.id}"]`));
+                                duplicateInMovies.forEach(r => { try { r.remove(); } catch(_){} });
+                                if (duplicateInMovies.length > 1) console.debug('ADMIN: removed', duplicateInMovies.length - 1, 'duplicate rows from Movies table for id', data.id);
+                            } catch(_){}
+
+                            // Broadcast to dashboard pages so they can re-add the movie
+                            try {
+                                const restoreData = {
+                                    id: data.id,
+                                    title: data.title,
+                                    genre: data.genre,
+                                    release_year: data.release_year,
+                                    description: data.description,
+                                    action: 'restored',
+                                    poster: posterSrc || data.poster || '',
+                                    ts: Date.now()
+                                };
+                                // Broadcast via localStorage (for other tabs) and custom event (same window)
+                                console.debug('ADMIN: broadcasting restore', restoreData);
+                                localStorage.setItem('moviehub:movie-restored', JSON.stringify(restoreData));
+                                window.dispatchEvent(new CustomEvent('moviehub:restored', { detail: restoreData }));
+                                setTimeout(() => { try { localStorage.removeItem('moviehub:movie-restored'); } catch(_){} }, 2000);
+                                localStorage.setItem('moviehub:admin-activity', Date.now().toString());
+                                // Also use BroadcastChannel when available for more reliable cross-tab messaging
+                                try {
+                                    if (typeof BroadcastChannel !== 'undefined') {
+                                        const bc = new BroadcastChannel('moviehub');
+                                        bc.postMessage({ type: 'restored', data: restoreData });
+                                        bc.close();
+                                    }
+                                } catch (e) { console.debug('BroadcastChannel restore failed', e); }
+                            } catch (e) { console.debug('ADMIN: localStorage broadcast failed', e); }
+                            console.debug('ADMIN: restore completed for id', data.id);
+                            // Final cleanup: aggressively remove any archived rows for this movie id
+                            try {
+                                const idCandidates = new Set([String(data.id), String(current && current.id)]);
+                                let removedCount = 0;
+                                const atbody = document.querySelector('#archive table.admin-table tbody');
+                                if (atbody) {
+                                    idCandidates.forEach(theId => {
+                                        if (!theId || theId === 'undefined' || theId === 'null') return;
+                                        // direct tr[data-movie-id]
+                                        const direct = Array.from(atbody.querySelectorAll(`tr[data-movie-id="${theId}"]`));
+                                        direct.forEach(r => { try { r.remove(); removedCount++; } catch(_){} });
+                                        // any element inside a tr with data-id attribute matching the id (buttons/links)
+                                        const inside = Array.from(atbody.querySelectorAll(`*[data-id="${theId}"]`));
+                                        inside.forEach(el => {
+                                            try { const tr = el.closest('tr'); if (tr) { tr.remove(); removedCount++; } } catch(_){}
+                                        });
+                                    });
+                                    if (removedCount) console.debug('ADMIN: aggressively cleaned archived rows count', removedCount, 'for id', data.id);
+                                    // If archive table now has no movie rows, remove the empty-state placeholder row so it's consistent
+                                    try {
+                                        if (!atbody.querySelector('tr[data-movie-id]')) {
+                                            const emptyRow = atbody.querySelector('tr td[colspan]');
+                                            if (emptyRow) {
+                                                const er = emptyRow.closest('tr'); if (er) er.remove();
+                                            }
+                                        }
+                                    } catch(_){}
+                                }
+                            } catch(e) { console.debug('ADMIN: final archive aggressive cleanup failed', e); }
+                            // Ensure the restored row exists in Movies table; if not, fetch movie details and insert
+                            try {
+                                const moviesTbodyCheck = document.querySelector('#movies table.admin-table tbody') || document.querySelector('section#movies tbody');
+                                const found = moviesTbodyCheck && moviesTbodyCheck.querySelector(`tr[data-movie-id="${data.id}"]`);
+                                if (!found) {
+                                    console.debug('ADMIN: movies row not found after restore, fetching via admin API', data.id);
+                                    // fetch movie details from admin API and insert
+                                    try {
+                                        fetch(`/api/admin/movie/${data.id}/`, { credentials: 'same-origin' })
+                                            .then(r => {
+                                                if (!r.ok) throw new Error('movie API fetch failed ' + r.status);
+                                                return r.json();
+                                            })
+                                            .then(m => {
+                                                try {
+                                                    const posterHtml = m.poster ? `<img src="${m.poster}" alt="${m.title || ''}" class="table-poster">` : '<div class="no-poster">-</div>';
+                                                    const titleHtml2 = m.title ? `<strong>${m.title}</strong>` : '';
+                                                    const genreHtml2 = m.genre || '';
+                                                    const yearHtml2 = m.release_year || '';
+                                                    const ratingCountHtml = (m.rating_count || 0);
+                                                    const ratingHtml = (m.average_rating !== undefined && m.average_rating > 0) ? `Rating: ${m.average_rating}` : 'Rating: 0';
+                                                    const mtr = document.createElement('tr');
+                                                    mtr.setAttribute('data-movie-id', m.id);
+                                                    mtr.innerHTML = `
+                                                        <td>${posterHtml}</td>
+                                                        <td>${titleHtml2}</td>
+                                                        <td>${genreHtml2}</td>
+                                                        <td>${yearHtml2}</td>
+                                                        <td>${ratingCountHtml}</td>
+                                                        <td>${ratingHtml}</td>
+                                                        <td>
+                                                            <a href="#" class="btn-small btn-edit" data-edit-id="${m.id}" data-edit-title="${m.title || ''}" data-edit-genre="${m.genre || ''}" data-edit-year="${m.release_year || ''}" data-edit-desc="${(m.description||'')}">Edit</a>
+                                                            <a href="/admin-panel/movie/archive/${m.id}/" class="btn-small btn-archive archive-link" data-href="/admin-panel/movie/archive/${m.id}/" data-id="${m.id}" data-title="${m.title || ''}">Archive</a>
+                                                        </td>
+                                                    `;
+                                                    if (moviesTbodyCheck) moviesTbodyCheck.insertBefore(mtr, moviesTbodyCheck.firstChild);
+                                                    console.debug('ADMIN: inserted restored movie via admin API', m.id);
+                                                } catch (err) { console.debug('ADMIN: insert from API failed', err); }
+                                            })
+                                            .catch(err => { console.debug('ADMIN: fetch admin movie failed', err); });
+                                    } catch (err) { console.debug('ADMIN: admin movie fallback failed', err); }
+                                }
+                            } catch (err) { console.debug('ADMIN: post-restore movies check failed', err); }
+                        } catch(e) { console.debug('restore DOM update failed', e); }
+                    }
+
+                    // notify the user (temporary message)
+                    try {
+                        const msgs = document.querySelector('.admin-messages') || (()=>{ const m=document.createElement('div'); m.className='admin-messages'; document.querySelector('.admin-content').insertBefore(m, document.querySelector('.admin-content').firstChild); return m; })();
+                        const node = document.createElement('div'); node.className = 'admin-message'; node.textContent = data && data.title ? `"${data.title}" ${data.action}` : 'Action completed';
+                        msgs.appendChild(node);
+                        setTimeout(()=>{ try{ node.style.display='none'; }catch(_){}} , 3500);
+                    } catch(_){ }
+                } catch(err){
+                    console.error('Admin action failed', err);
+                    alert('Unable to complete action. Please try again.');
+                } finally {
+                    close();
+                }
+            }
+
+            if (okBtn) okBtn.addEventListener('click', performAction);
+            if (cancelBtn) cancelBtn.addEventListener('click', close);
+            if (closeBtn) closeBtn.addEventListener('click', close);
+            if (overlay) overlay.addEventListener('click', close);
+        })();
+    </script>
+    <script>
+        // Diagnostic: verify server-side session user matches the rendered user (admin).
+        (function(){
+            const renderedUser = '{{ user.username|default:"" }}';
+            if (!renderedUser) return;
+
+            fetch('{% url "whoami" %}', { credentials: 'same-origin' })
+                .then(r => r.json())
+                .then(data => {
+                    if (!data) return;
+                    const serverUser = data.username || '';
+                    if (serverUser && serverUser !== renderedUser) {
+                        const warn = document.createElement('div');
+                        warn.style.position = 'fixed';
+                        warn.style.right = '1rem';
+                        warn.style.bottom = '1rem';
+                        warn.style.background = '#332';
+                        warn.style.color = '#fff';
+                        warn.style.padding = '0.6rem 0.8rem';
+                        warn.style.borderRadius = '6px';
+                        warn.style.boxShadow = '0 2px 8px rgba(0,0,0,0.4)';
+                        warn.style.zIndex = '9999';
+                        warn.textContent = `Session mismatch: server sees '${serverUser}' but page shows '${renderedUser}'.`;
+                        const btn = document.createElement('button');
+                        btn.textContent = 'Logout';
+                        btn.style.marginLeft = '0.6rem';
+                        btn.style.background = '#E53935';
+                        btn.style.border = 'none';
+                        btn.style.color = '#fff';
+                        btn.style.padding = '0.2rem 0.5rem';
+                        btn.style.borderRadius = '4px';
+                        btn.addEventListener('click', function(){ window.location.href = '{% url "logout" %}'; });
+                        warn.appendChild(btn);
+                        document.body.appendChild(warn);
+                    }
+                })
+                .catch(err => { console.debug('whoami check failed', err); });
+        })();
+    </script>
+    <style>
+        /* Movie Form Modal Styles */
+        .movie-modal form {
+            display: flex;
+            flex-direction: column;
+            gap: 1rem;
+        }
+        
+        .movie-modal .form-group {
+            display: flex;
+            flex-direction: column;
+            gap: 0.5rem;
+        }
+        
+        .movie-modal .form-group label {
+            font-weight: 600;
+            color: #E53935;
+            font-size: 0.95rem;
+        }
+        
+        .movie-modal .form-group input,
+        .movie-modal .form-group textarea {
+            background: #262626;
+            border: 1px solid #444;
+            border-radius: 4px;
+            color: #f0f0f0;
+            padding: 0.75rem;
+            font-family: inherit;
+            font-size: 0.95rem;
+        }
+        
+        .movie-modal .form-group input:focus,
+        .movie-modal .form-group textarea:focus {
+            outline: none;
+            border-color: #E53935;
+            box-shadow: 0 0 0 2px rgba(229, 57, 53, 0.2);
+        }
+        
+        .movie-modal .form-group textarea {
+            resize: vertical;
+            min-height: 100px;
+        }
+        
+        .movie-modal .form-group small {
+            font-size: 0.85rem;
+            color: #999;
+        }
+        
+        .movie-modal .form-row {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 1rem;
+        }
+        
+        .movie-modal .form-actions {
+            display: flex;
+            gap: 1rem;
+            justify-content: flex-end;
+            margin-top: 0.5rem;
+        }
+        
+        .movie-modal .form-actions .btn {
+            padding: 0.75rem 1.5rem;
+            border-radius: 4px;
+            border: none;
+            cursor: pointer;
+            font-weight: 600;
+            transition: all 0.2s;
+        }
+        
+        .movie-modal .form-actions .btn {
+            background: #E53935;
+            color: #fff;
+        }
+        
+        .movie-modal .form-actions .btn:hover {
+            background: #C62828;
+        }
+        
+        .movie-modal .form-actions .btn-cancel {
+            background: #444;
+            color: #f0f0f0;
+        }
+        
+        .movie-modal .form-actions .btn-cancel:hover {
+            background: #555;
+        }
+
+        /* Styled tooltip for legend items */
+        .legend-tooltip {
+            position: fixed;
+            z-index: 9999;
+            background: #111;
+            color: #f0f0f0;
+            padding: 8px 10px;
+            border-radius: 6px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.6);
+            font-size: 0.88rem;
+            max-width: 300px;
+            line-height: 1.2;
+            pointer-events: none;
+        }
+        .legend-item { position: relative; }
+    </style>
+
+    <script>
+        // Custom tooltip logic for legend items (hover + touch-friendly)
+        (function(){
+            let tt = null;
+            let hideTimer = null;
+
+            function createTooltip(text) {
+                if (tt) tt.remove();
+                tt = document.createElement('div');
+                tt.className = 'legend-tooltip';
+                tt.textContent = text;
+                document.body.appendChild(tt);
+            }
+
+            function showAt(el) {
+                if (!tt) return;
+                const r = el.getBoundingClientRect();
+                const padding = 8;
+                let top = r.top - tt.offsetHeight - 8;
+                if (top < 8) top = r.bottom + 8;
+                let left = r.left + (r.width / 2) - (tt.offsetWidth / 2);
+                left = Math.max(8, Math.min(left, window.innerWidth - tt.offsetWidth - 8));
+                tt.style.top = top + 'px';
+                tt.style.left = left + 'px';
+            }
+
+            function showTooltip(e) {
+                const el = e.currentTarget;
+                const text = el.getAttribute('data-tooltip');
+                if (!text) return;
+                if (hideTimer) { clearTimeout(hideTimer); hideTimer = null; }
+                createTooltip(text);
+                // wait a frame to ensure tt has size
+                requestAnimationFrame(() => showAt(el));
+            }
+
+            function hideTooltip() {
+                if (tt) {
+                    tt.remove();
+                    tt = null;
+                }
+            }
+
+            document.querySelectorAll('.legend-item').forEach(item => {
+                item.addEventListener('mouseenter', showTooltip);
+                item.addEventListener('mouseleave', function(){ hideTimer = setTimeout(hideTooltip, 100); });
+                // touch/click -> toggle
+                item.addEventListener('click', function(e){
+                    e.preventDefault();
+                    if (tt) { hideTooltip(); }
+                    else { showTooltip({ currentTarget: item }); }
+                });
+            });
+
+            // Hide on scroll or resize to avoid stuck tooltip
+            window.addEventListener('scroll', hideTooltip, true);
+            window.addEventListener('resize', hideTooltip);
+            document.addEventListener('click', function(e){
+                // if clicking outside tooltip or legend items, hide
+                if (!e.target.closest('.legend-item') && tt) hideTooltip();
+            });
+        })();
+    </script>
+    <script>
+        // Admin movies filter dropdown behavior
+        (function(){
+            const btn = document.getElementById('admin-filter-btn');
+            const dropdown = document.getElementById('admin-filter-dropdown');
+            const form = document.getElementById('admin-filter-form');
+            const genreSelect = document.getElementById('admin-genre-select');
+            const yearSelect = document.getElementById('admin-year-select');
+            const genreInput = document.getElementById('admin-genre-input');
+            const yearInput = document.getElementById('admin-year-input');
+            const clearBtn = document.getElementById('admin-filter-clear');
+            if (!btn || !dropdown || !form) return;
+
+            function open(){ dropdown.style.display = 'block'; btn.setAttribute('aria-expanded','true'); }
+            function close(){ dropdown.style.display = 'none'; btn.setAttribute('aria-expanded','false'); }
+
+            btn.addEventListener('click', function(e){ e.stopPropagation(); if (dropdown.style.display === 'block') close(); else open(); });
+            document.addEventListener('click', function(e){ if (!btn.contains(e.target) && !dropdown.contains(e.target)) close(); });
+
+            clearBtn.addEventListener('click', function(){
+                if (genreSelect) genreSelect.value = '';
+                if (yearSelect) yearSelect.value = '';
+                if (genreInput) genreInput.value = '';
+                if (yearInput) yearInput.value = '';
+                form.submit();
+            });
+
+            // Before submit, copy select values into hidden inputs (so they persist alongside other GET params)
+            form.addEventListener('submit', function(){
+                if (genreSelect && genreInput) genreInput.value = genreSelect.value || '';
+                if (yearSelect && yearInput) yearInput.value = yearSelect.value || '';
+            });
+        })();
+    </script>
+    <!-- Logout Confirmation Modal -->
+    <div id="logoutModal" class="logout-modal">
+        <div class="logout-modal-content">
+            <h2>Confirm Logout</h2>
+            <p>Are you sure you want to logout? You'll need to login again to access your account.</p>
+            <div class="logout-modal-buttons">
+                <button class="logout-btn-confirm" onclick="confirmLogout();">Logout</button>
+                <button class="logout-btn-cancel" onclick="cancelLogout();">Cancel</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Archive Confirmation Modal -->
+    <div id="archiveModal" class="logout-modal" style="display: none;">
+        <div class="logout-modal-content">
+            <h2 id="archiveModalTitle">Confirm Archive</h2>
+            <p id="archiveModalMessage">Are you sure you want to archive this movie? It can be restored from the Archive section.</p>
+            <div class="logout-modal-buttons">
+                <button id="archive-confirm-btn" class="logout-btn-confirm">Archive</button>
+                <button id="archive-cancel-btn" class="logout-btn-cancel">Cancel</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        function showLogoutConfirm(event) {
+            event.preventDefault();
+            const modal = document.getElementById('logoutModal');
+            if (modal) modal.classList.add('active');
+        }
+
+        function confirmLogout() {
+            window.location.href = '{% url "logout" %}';
+        }
+
+        function cancelLogout() {
+            const modal = document.getElementById('logoutModal');
+            if (modal) modal.classList.remove('active');
+        }
+
+        // Close modal when clicking outside of it
+        document.addEventListener('click', function(e) {
+            const modal = document.getElementById('logoutModal');
+            if (!modal) return;
+            if (e.target === modal) cancelLogout();
+        });
+        
+        // Profile dropdown toggle (admin)
+        (function() {
+            const profileBtn = document.getElementById('profile-btn');
+            const profileDropdown = document.getElementById('profile-dropdown');
+            if (!profileBtn || !profileDropdown) return;
+            profileBtn.addEventListener('click', (e) => {
+                e.stopPropagation();
+                profileDropdown.classList.toggle('active');
+            });
+
+            document.addEventListener('click', (e) => {
+                if (!profileBtn.contains(e.target) && !profileDropdown.contains(e.target)) {
+                    profileDropdown.classList.remove('active');
+                }
+            });
+        })();
+        
+        // Password toggle for admin dropdown
+        (function(){
+            const toggles = document.querySelectorAll('#profile-dropdown .password-toggle');
+            toggles.forEach(btn => {
+                const wrap = btn.closest('.password-wrap');
+                if (!wrap) return;
+                const input = wrap.querySelector('input.auth-input, input[type="password"]');
+                if (!input) return;
+
+                btn.addEventListener('click', function(){
+                    const isPressed = btn.getAttribute('aria-pressed') === 'true';
+                    if (isPressed) {
+                        input.type = 'password';
+                        btn.setAttribute('aria-pressed','false');
+                        btn.setAttribute('aria-label','Show password');
+                    } else {
+                        input.type = 'text';
+                        btn.setAttribute('aria-pressed','true');
+                        btn.setAttribute('aria-label','Hide password');
+                    }
+                });
+            });
+        })();
+    </script>
+    <script>
+        // Auto-hide admin messages after 3 seconds
+        (function(){
+            try {
+                const wrapper = document.querySelector('.admin-messages');
+                if (!wrapper) return;
+                const msgs = Array.from(wrapper.querySelectorAll('.admin-message'));
+                msgs.forEach((m, idx) => {
+                    // stagger slightly if multiple messages
+                    setTimeout(() => {
+                        m.style.transition = 'opacity 0.4s ease, transform 0.4s ease';
+                        m.style.opacity = '0';
+                        m.style.transform = 'translateY(-6px)';
+                        setTimeout(() => { try { m.remove(); } catch(e){} }, 450);
+                    }, 3000 + (idx * 200));
+                });
+            } catch (e) { console.debug('auto-hide messages failed', e); }
+        })();
+    </script>
+
+
+    <!-- Chart.js for admin statistics -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script>
+        (function(){
+            try {
+                const labels = {{ stats_labels|default:'[]'|safe }};
+                const rawCounts = {{ stats_counts|default:'[]'|safe }};
+                const counts = {{ stats_data|default:'[]'|safe }}; // 0-5 scores per period
+                const statsRange = "{{ stats_range|default:'weekly' }}";
+                const canvas = document.getElementById('ratingsChart');
+                if (!canvas) return;
+
+                // Debug: log the data received
+                console.log('Chart data - labels:', labels, 'counts (scores):', counts, 'rawCounts:', rawCounts, 'statsRange:', statsRange);
+
+                // Defensive parsing: the template provides JSON strings or arrays.
+                let parsedLabels = labels;
+                let parsedCounts = counts;
+                let parsedRawCounts = rawCounts;
+                
+                if (typeof parsedLabels === 'string') {
+                    try { parsedLabels = JSON.parse(parsedLabels); } catch (e) { parsedLabels = []; }
+                }
+                if (typeof parsedCounts === 'string') {
+                    try { parsedCounts = JSON.parse(parsedCounts); } catch (e) { parsedCounts = []; }
+                }
+                if (typeof parsedRawCounts === 'string') {
+                    try { parsedRawCounts = JSON.parse(parsedRawCounts); } catch (e) { parsedRawCounts = []; }
+                }
+
+                console.log('After parsing - labels:', parsedLabels, 'counts:', parsedCounts, 'rawCounts:', parsedRawCounts);
+
+                // If no labels, use fallback sample data for this week
+                if (!Array.isArray(parsedLabels) || parsedLabels.length === 0) {
+                    console.warn('No labels found, using sample data');
+                    parsedLabels = ['Week 1', 'Week 2', 'Week 3', 'Week 4'];
+                    parsedCounts = [0, 0, 0, 0];
+                    parsedRawCounts = [0, 0, 0, 0];
+                }
+
+                if (!Array.isArray(parsedLabels) || !Array.isArray(parsedCounts)) return;
+
+                // Ensure counts are numeric
+                parsedCounts = parsedCounts.map(c => {
+                    const n = Number(c);
+                    return Number.isFinite(n) ? n : 0;
+                });
+
+                // Build display labels
+                const displayLabels = parsedLabels.map((lab, idx) => {
+                    const i = idx + 1;
+                    if (statsRange === 'weekly') return `Week ${i}: ${lab}`;
+                    if (statsRange === 'monthly') return `Month ${i}: ${lab}`;
+                    if (statsRange === 'yearly') return `Year ${i}: ${lab}`;
+                    return lab;
+                });
+
+                const ctx = canvas.getContext('2d');
+                const isLightTheme = document.documentElement.classList.contains('theme-light');
+                const axisColor = isLightTheme ? '#333333' : '#ffffff';
+                const gridColor = isLightTheme ? '#cccccc' : 'rgba(255,255,255,0.08)';
+                const bgColor = isLightTheme ? '#ffffff' : '#0f0f0f';
+                if (canvas._chartInstance) canvas._chartInstance.destroy();
+
+                canvas._chartInstance = new Chart(ctx, {
+                    type: 'bar',
+                    data: {
+                        labels: displayLabels,
+                        datasets: [{
+                            label: 'Engagement (0-5)',
+                            data: parsedCounts,
+                            backgroundColor: 'rgba(229,57,53,0.85)',
+                            borderColor: '#ffffff',
+                            borderWidth: 1
+                        }]
+                    },
+                    options: {
+                        indexAxis: 'x',
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        scales: {
+                            x: {
+                                ticks: { color: axisColor, maxRotation: 45, minRotation: 0 },
+                                grid: { color: gridColor, borderColor: axisColor },
+                                title: { display: true, text: (statsRange === 'weekly' ? 'Weeks' : statsRange === 'monthly' ? 'Months' : 'Years'), color: axisColor }
+                            },
+                            y: {
+                                beginAtZero: true,
+                                min: 0,
+                                max: 5,
+                                ticks: { stepSize: 1, color: axisColor },
+                                grid: { color: gridColor, borderColor: axisColor },
+                                title: { display: true, text: 'Activity (0-5)', color: axisColor }
+                            }
+                        },
+                        plugins: {
+                            legend: { labels: { color: isLightTheme ? '#333333' : '#cfcfcf' } },
+                            tooltip: {
+                                callbacks: {
+                                    label: function(context) {
+                                        const idx = context.dataIndex;
+                                        const score = context.parsed.y || 0;
+                                        const raw = (Array.isArray(parsedRawCounts) && parsedRawCounts[idx] != null) ? parsedRawCounts[idx] : '0';
+                                        return `${context.dataset.label}: ${score}/5 — ${raw} user(s)`;
+                                    }
+                                }
+                            }
+                        }
+                    }
+                });
+            } catch (e) {
+                console.error('Could not render stats chart', e);
+            }
+        })();
+    </script>
+    <script>
+        // Stats-range dropdown behavior
+        (function(){
+            const btn = document.getElementById('stats-range-btn');
+            const dropdown = document.getElementById('stats-range-dropdown');
+            const input = document.getElementById('stats-range-input');
+            const label = document.getElementById('stats-range-label');
+            if (!btn || !dropdown || !input || !label) return;
+
+            function close() {
+                dropdown.style.display = 'none';
+                btn.setAttribute('aria-expanded','false');
+            }
+            function open() {
+                dropdown.style.display = 'block';
+                btn.setAttribute('aria-expanded','true');
+            }
+
+            btn.addEventListener('click', function(e){
+                e.stopPropagation();
+                if (dropdown.style.display === 'block') close(); else open();
+            });
+
+            document.addEventListener('click', function(e){
+                if (!btn.contains(e.target) && !dropdown.contains(e.target)) close();
+            });
+
+            dropdown.querySelectorAll('.stats-range-option').forEach(opt => {
+                opt.addEventListener('click', function(e){
+                    const v = this.getAttribute('data-value');
+                    input.value = v;
+                    label.textContent = v;
+                    // submit the form (GET)
+                    const form = document.getElementById('stats-range-form');
+                    if (form) form.submit();
+                });
+            });
+            // metric selection removed (always showing Active Users)
+        })();
+    </script>
+    <script>
+        // Theme toggle: initialize from localStorage and persist choice
+        (function(){
+            const btn = document.getElementById('theme-toggle-btn');
+            if (!btn) return;
+            const iconSun = document.getElementById('theme-icon-sun');
+            const iconMoon = document.getElementById('theme-icon-moon');
+
+            function applyTheme(t) {
+                if (t === 'light') {
+                    document.documentElement.classList.add('theme-light');
+                    btn.setAttribute('aria-pressed','true');
+                    if (iconSun) iconSun.style.display = '';
+                    if (iconMoon) iconMoon.style.display = 'none';
+                } else {
+                    document.documentElement.classList.remove('theme-light');
+                    btn.setAttribute('aria-pressed','false');
+                    if (iconSun) iconSun.style.display = 'none';
+                    if (iconMoon) iconMoon.style.display = '';
+                }
+            }
+
+            const stored = localStorage.getItem('theme');
+            if (stored) applyTheme(stored);
+            else {
+                // Respect OS preference if no stored choice
+                const prefersLight = window.matchMedia && window.matchMedia('(prefers-color-scheme: light)').matches;
+                applyTheme(prefersLight ? 'light' : 'dark');
+            }
+
+            btn.addEventListener('click', () => {
+                const isLight = document.documentElement.classList.contains('theme-light');
+                const next = isLight ? 'dark' : 'light';
+                applyTheme(next);
+                localStorage.setItem('theme', next);
+            });
+        })();
+    </script>
+    
+    <!-- Admin Users and Ratings Auto-Load Script -->
+    <script>
+        (function(){
+            // Auto-load users data
+            async function loadUsersData() {
+                try {
+                    const response = await fetch('/api/admin/users/', { credentials: 'same-origin' });
+                    if (!response.ok) return;
+                    const users = await response.json();
+                    
+                    const tbody = document.querySelector('#users table.admin-table tbody');
+                    if (!tbody) return;
+                    
+                    if (users.length === 0) {
+                        tbody.innerHTML = '<tr><td colspan="4" style="text-align: center; color: #a0a0a0;">No users yet.</td></tr>';
+                        return;
+                    }
+                    
+                    let html = '';
+                    users.forEach(user => {
+                        html += `
+                            <tr>
+                                <td>${user.username}</td>
+                                <td>${user.email}</td>
+                                <td>${user.ratings_given}</td>
+                                <td><small>${user.date_joined}</small></td>
+                            </tr>
+                        `;
+                    });
+                    
+                    tbody.innerHTML = html;
+                } catch (err) {
+                    console.debug('Failed to load users data', err);
+                }
+            }
+            
+            // Auto-load ratings data
+            async function loadRatingsData() {
+                try {
+                    const response = await fetch('/api/admin/ratings/', { credentials: 'same-origin' });
+                    if (!response.ok) return;
+                    const ratings = await response.json();
+                    
+                    const tbody = document.querySelector('#ratings table.admin-table tbody');
+                    if (!tbody) return;
+                    
+                    if (ratings.length === 0) {
+                        tbody.innerHTML = '<tr><td colspan="4" style="text-align: center; color: #a0a0a0;">No ratings yet.</td></tr>';
+                        return;
+                    }
+                    
+                    let html = '';
+                    ratings.forEach(rating => {
+                        html += `
+                            <tr>
+                                <td>${rating.user}</td>
+                                <td>${rating.movie}</td>
+                                <td>${rating.value}/5</td>
+                                <td><small>${rating.created_at}</small></td>
+                            </tr>
+                        `;
+                    });
+                    
+                    tbody.innerHTML = html;
+                } catch (err) {
+                    console.debug('Failed to load ratings data', err);
+                }
+            }
+            
+            // Initial load on page load
+            document.addEventListener('DOMContentLoaded', function() {
+                loadUsersData();
+                loadRatingsData();
+            });
+            
+            // Auto-refresh every 10 seconds
+            setInterval(() => {
+                loadUsersData();
+                loadRatingsData();
+            }, 10000);
+            
+            // Also listen for rating events from dashboard to refresh data
+            window.addEventListener('movieRated', function() {
+                loadRatingsData();
+                loadUsersData();
+            });
+            
+            // Listen for movie archived/deleted/restored events to refresh users
+            window.addEventListener('moviehub:archived', function() {
+                loadUsersData();
+                loadRatingsData();
+            });
+            window.addEventListener('moviehub:deleted', function() {
+                loadUsersData();
+                loadRatingsData();
+            });
+            window.addEventListener('moviehub:restored', function() {
+                loadUsersData();
+                loadRatingsData();
+            });
+        })();
+    </script>
+</body>
+</html>

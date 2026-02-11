@@ -1,0 +1,2061 @@
+/* Reset and Base Styles */
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    background-color: #0f0f0f;
+    color: #e0e0e0;
+    line-height: 1.6;
+}
+
+html, body {
+    height: 100%;
+}
+
+/* Auth pages background */
+body.auth-page {
+    background-size: cover;
+    background-position: center;
+    background-attachment: fixed;
+    background-repeat: no-repeat;
+    position: relative;
+}
+
+body.auth-page::after {
+    content: '';
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: inherit;
+    background-attachment: fixed;
+    filter: blur(12px);
+    z-index: -1;
+}
+
+body.auth-page::before {
+    content: '';
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.5);
+    pointer-events: none;
+    z-index: 0;
+}
+
+/* Auth pages background */
+body.auth-page {
+    background-image: url('{% static "images/auth-bg.jpg" %}');
+    background-size: cover;
+    background-position: center;
+    background-attachment: fixed;
+    background-repeat: no-repeat;
+    position: relative;
+}
+
+body.auth-page::before {
+    content: '';
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.5);
+    pointer-events: none;
+    z-index: 0;
+}
+
+/* Navigation and Header */
+nav {
+    background-color: #1a1a1a;
+    padding: 0 2rem;
+    border-bottom: 2px solid #E53935;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    height: 90px;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.3);
+    gap: 2rem;
+}
+
+nav .logo {
+    font-size: 1.7rem;
+    font-weight: bold;
+    color: #E53935;
+    white-space: nowrap;
+    flex-shrink: 0;
+}
+
+nav ul {
+    list-style: none;
+    display: flex;
+    gap: 1.5rem;
+    align-items: center;
+    height: 100%;
+    justify-content: flex-end;
+    flex: 1;
+    margin: 0;
+}
+
+nav ul li {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    height: 100%;
+}
+
+nav a {
+    color: #e0e0e0;
+    text-decoration: none;
+    transition: color 0.3s ease, border-bottom 0.3s ease;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    height: 100%;
+    padding: 0 0.5rem;
+    border-bottom: 2px solid transparent;
+    font-size: 1.05rem;
+}
+
+nav a:hover {
+    color: #E53935;
+    border-bottom-color: #E53935;
+}
+
+/* Profile Menu */
+.profile-menu {
+    position: relative;
+    display: flex;
+    align-items: center;
+    height: 100%;
+}
+
+.profile-btn {
+    background: none !important;
+    border: none !important;
+    color: #e0e0e0;
+    cursor: pointer;
+    font-size: 1.05rem;
+    transition: color 0.3s ease, border-bottom 0.3s ease;
+    padding: 0 0.5rem;
+    display: flex;
+    align-items: center;
+    height: 100%;
+    outline: none !important;
+    box-shadow: none !important;
+    border-bottom: 2px solid transparent !important;
+}
+
+.profile-btn:hover {
+    color: #E53935;
+    background: none !important;
+    border-bottom-color: #E53935 !important;
+    box-shadow: none !important;
+}
+
+.profile-btn:focus {
+    outline: none !important;
+    box-shadow: none !important;
+    border: none !important;
+    background: none !important;
+}
+
+.profile-btn:active {
+    outline: none !important;
+    box-shadow: none !important;
+    border: none !important;
+    background: none !important;
+}
+
+.profile-dropdown {
+    display: none;
+    position: absolute;
+    top: 100%;
+    right: 0;
+    background-color: #1a1a1a;
+    border: 1px solid #333;
+    border-radius: 8px;
+    min-width: 250px;
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.3);
+    z-index: 1000;
+    margin-top: 0.5rem;
+}
+
+.profile-dropdown.active {
+    display: block;
+}
+
+.profile-info {
+    padding: 1rem;
+    border-bottom: 1px solid #333;
+}
+
+.profile-info p {
+    margin: 0.25rem 0;
+    color: #e0e0e0;
+}
+
+.dropdown-item {
+    display: block;
+    padding: 0.75rem 1rem;
+    color: #e0e0e0;
+    text-decoration: none;
+    transition: all 0.3s ease;
+    border: none;
+}
+
+.dropdown-item:hover {
+    background-color: #2a2a2a;
+    color: #E53935;
+}
+
+.dropdown-item.logout {
+    color: #FF6B6B;
+    border-top: 1px solid #333;
+}
+
+.dropdown-item.logout:hover {
+    background-color: #2a2a2a;
+}
+
+/* Container */
+.container {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 2rem 4rem;
+}
+
+/* Forms */
+form {
+    background-color: #1a1a1a;
+    padding: 2rem;
+    border-radius: 8px;
+    border: 1px solid #333;
+    max-width: 400px;
+    margin: 2rem auto;
+}
+
+form h1 {
+    text-align: center;
+    color: #E53935;
+    margin-bottom: 1.5rem;
+}
+
+form div {
+    margin-bottom: 1.5rem;
+}
+
+label {
+    display: block;
+    margin-bottom: 0.5rem;
+    color: #e0e0e0;
+    font-weight: 500;
+}
+
+input[type="text"],
+input[type="email"],
+textarea,
+select {
+    width: 100%;
+    padding: 0.75rem;
+    border: 1px solid #333;
+    border-radius: 4px;
+    background-color: #2a2a2a;
+    color: #e0e0e0;
+    font-size: 1rem;
+    transition: border-color 0.3s ease;
+}
+
+input[type="text"]:focus,
+input[type="email"]:focus,
+input[type="password"]:focus,
+textarea:focus,
+select:focus {
+    outline: none;
+    border-color: #E53935;
+    box-shadow: 0 0 5px rgba(229, 57, 53, 0.3);
+}
+
+/* Auth form specific styles (register & login) - rewritten */
+.auth-container {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: flex-start;
+    padding: 2rem 1rem;
+    position: relative;
+    z-index: 1;
+    min-height: calc(100vh - 90px);
+    padding-top: 4rem;
+}
+
+.auth-card {
+    width: 100%;
+    max-width: 420px;
+    background: linear-gradient(180deg, #141414 0%, #1c1c1c 100%);
+    border: 1px solid rgba(255,255,255,0.04);
+    border-radius: 10px;
+    padding: 2rem;
+    box-shadow: 0 6px 20px rgba(0,0,0,0.5);
+}
+
+/* Admin messages */
+.admin-messages { max-width: 980px; margin: 0 auto 1rem; }
+.admin-message { background: rgba(14, 164, 88, 0.12); border-left: 4px solid #0EA458; color: #e6ffe9; padding: 0.6rem 0.9rem; border-radius: 4px; font-weight: 600; }
+
+.auth-header {
+    text-align: center;
+    margin-bottom: 1.25rem;
+}
+.auth-header h1 {
+    margin: 0;
+    color: #E53935;
+    font-size: 1.5rem;
+    letter-spacing: 0.2px;
+}
+.auth-header p {
+    margin: 0.35rem 0 0;
+    color: #bdbdbd;
+    font-size: 0.95rem;
+}
+
+.auth-field {
+    margin-bottom: 0.85rem;
+}
+.auth-field label {
+    display: block;
+    margin-bottom: 0.45rem;
+    color: #d6d6d6;
+    font-weight: 600;
+    font-size: 0.92rem;
+}
+
+.auth-input {
+    width: 100%;
+    padding: 0.75rem 0.9rem;
+    border-radius: 8px;
+    border: 1px solid rgba(255,255,255,0.06);
+    background-color: #1f1f1f;
+    color: #eeeeee;
+    font-size: 1rem;
+    box-sizing: border-box;
+    transition: border-color 0.18s ease, box-shadow 0.18s ease, transform 0.08s ease;
+    font-family: inherit;
+    font-weight: 400;
+}
+
+.auth-input::placeholder {
+    color: #909090;
+}
+
+.auth-input:focus {
+    outline: none;
+    border-color: #E53935;
+    box-shadow: 0 4px 18px rgba(229,57,53,0.12);
+}
+
+/* Password field wrapper to position toggle */
+.password-wrap {
+    position: relative;
+}
+.password-toggle {
+    position: absolute;
+    right: 10px;
+    top: 50%;
+    transform: translateY(-50%);
+    background: transparent;
+    border: none;
+    color: #bdbdbd;
+    cursor: pointer;
+    padding: 0.25rem;
+    font-size: 0.95rem;
+}
+
+.auth-actions {
+    display: flex;
+    flex-direction: column;
+    gap: 0.75rem;
+.password-toggle {
+    outline: none;
+}
+    margin-top: 0.75rem;
+}
+.btn-block {
+    width: 100%;
+    padding: 0.9rem;
+    font-size: 1rem;
+    border-radius: 8px;
+}
+
+.auth-aux {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+
+/* Ensure inputs inside password wrapper have extra right padding
+   so the toggle button does not overlap the text and the field
+   looks visually the same (thickness/background) as other inputs */
+.password-wrap .auth-input {
+    padding-right: 3.2rem; /* room for toggle */
+    background-color: #1f1f1f; /* same gray as other auth inputs */
+    border-radius: 8px;
+    border: 1px solid rgba(255,255,255,0.06);
+}
+    margin-top: 0.5rem;
+    color: #bdbdbd;
+    font-size: 0.92rem;
+}
+.auth-aux {
+    text-align: center;
+    max-width: 420px;
+    margin: -0.3rem auto 0;
+    padding: 0 1rem;
+    color: #bdbdbd;
+    font-size: 0.92rem;
+}
+.auth-aux a {
+    color: #E53935;
+    text-decoration: none;
+    font-weight: 600;
+    text-shadow: 0 0 8px rgba(229, 57, 53, 0.7), 0 0 16px rgba(229, 57, 53, 0.5);
+    transition: text-shadow 0.3s ease;
+}
+.auth-aux a:hover {
+    text-decoration: underline;
+    color: #FF6B6B;
+    text-shadow: 0 0 12px rgba(229, 57, 53, 0.9), 0 0 24px rgba(229, 57, 53, 0.7), 0 0 36px rgba(229, 57, 53, 0.5);
+}
+
+.auth-error {
+    color: #ff7b7b;
+    font-size: 0.9rem;
+    margin-top: 0.35rem;
+}
+
+/* Make sure the toggle button has no visible background on focus */
+.password-toggle:focus {
+    background: transparent;
+    box-shadow: none;
+}
+
+/* Make sure password input matches other inputs */
+.auth-input[type="password"] {
+    -webkit-appearance: none;
+    appearance: none;
+}
+
+/* Autofill overrides for Chrome / Edge */
+.auth-input:-webkit-autofill,
+.auth-input:-webkit-autofill:hover,
+.auth-input:-webkit-autofill:focus,
+.auth-input:-webkit-autofill:active {
+    -webkit-box-shadow: 0 0 0px 1000px #1f1f1f inset !important;
+    box-shadow: 0 0 0px 1000px #1f1f1f inset !important;
+    -webkit-text-fill-color: #eeeeee !important;
+}
+
+/* Minimalist genre filter (icon + dropdown) */
+.genre-filter {
+    position: relative;
+    display: inline-block;
+}
+.genre-filter-button {
+    background: transparent;
+    border: 1px solid transparent;
+    color: #e0e0e0;
+    padding: 6px;
+    border-radius: 6px;
+    cursor: pointer;
+}
+.genre-filter-button:hover {
+    background: rgba(229,57,53,0.06);
+}
+.genre-dropdown {
+    position: absolute;
+    top: calc(100% + 8px);
+    left: 0;
+    background: #141414;
+    border: 1px solid #2b2b2b;
+    padding: 0.6rem;
+    border-radius: 8px;
+    min-width: 340px; /* wider so the "All genres" label fits comfortably */
+    max-width: 420px; /* prevent it growing too wide on very large screens */
+    box-shadow: 0 8px 20px rgba(0,0,0,0.45);
+    z-index: 1000;
+    display: none;
+}
+.genre-dropdown form { width: 100%; }
+.genre-dropdown select {
+    width: 100%;
+    background: #1b1b1b;
+    color: #e0e0e0;
+    border: 1px solid #2b2b2b;
+    padding: 8px 10px; /* slightly bigger padding for readability */
+    border-radius: 6px;
+    font-size: 1rem; /* ensure option text is legible */
+}
+.genre-dropdown .btn { padding: 8px 10px; font-size: 0.95rem; }
+.genre-filter.open .genre-dropdown { display: block; }
+
+/* Small helper to keep the UI compact on small screens */
+@media (max-width: 640px) {
+    .genre-dropdown { min-width: 200px; max-width: calc(100vw - 40px); }
+}
+
+/* Movie list grid and card styles */
+.movie-list {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 1.25rem;
+    justify-content: flex-start;
+    margin: 1rem 0;
+}
+
+.movie-card {
+    background: linear-gradient(180deg, #141414 0%, #1a1a1a 100%);
+    border: 1px solid #2a2a2a;
+    border-radius: 8px;
+    padding: 0.9rem;
+    width: 220px;
+    flex: 0 0 220px;
+    box-shadow: 0 6px 20px rgba(0,0,0,0.5);
+}
+
+/* Top picks row container */
+.top-picks-row {
+    display: flex;
+    gap: 1rem;
+    align-items: flex-start;
+}
+
+/* Top picks wrapper - normal state */
+.top-picks-wrapper {
+    flex: 0 0 220px;
+    min-width: 220px;
+}
+
+/* Filtered out state is handled by inline display: none style */
+
+.movie-card .poster {
+    width: 100%;
+    height: 300px;
+    object-fit: cover;
+    border-radius: 4px;
+    margin-bottom: 0.6rem;
+}
+
+.movie-card h4 {
+    font-size: 1rem;
+    margin: 0.25rem 0;
+    color: #ffffff;
+}
+
+/* Theme toggle: light-mode overrides. Keep this section at the end so it wins. */
+/* Light theme: white + red + gray palette. Minimize black usage except for text. */
+.theme-light body {
+    background-color: #ffffff !important;
+    color: #111111 !important; /* primary text color */
+}
+.theme-light nav {
+    background-color: #ffffff !important;
+    border-bottom-color: #f3e9e9 !important; /* subtle warm border */
+    box-shadow: 0 2px 6px rgba(0,0,0,0.04) !important;
+}
+.theme-light nav .logo { color: #E53935; }
+.theme-light nav a, .theme-light .profile-btn, .theme-light .dropdown-item { color: #111 !important; }
+.theme-light .profile-dropdown { background-color: #ffffff; border-color: #f0f0f0 !important; }
+
+/* Containers, cards, and forms use white backgrounds with light gray borders */
+.theme-light .container,
+.theme-light form,
+.theme-light .auth-card,
+.theme-light .movie-card,
+.theme-light .genre-dropdown,
+.theme-light .profile-dropdown {
+    background-color: #ffffff !important;
+    background: #ffffff !important;
+    border-color: #f0f0f0 !important;
+    color: #111 !important;
+}
+
+.theme-light input[type="text"],
+.theme-light input[type="email"],
+.theme-light textarea,
+.theme-light select {
+    background-color: #ffffff !important;
+    color: #111 !important;
+    border: 1px solid #ececec !important;
+}
+
+/* Ensure password inputs and auth-inputs are white in light mode */
+.theme-light .auth-input,
+.theme-light input[type="password"],
+.theme-light .password-wrap .auth-input {
+    background-color: #ffffff !important;
+    color: #111 !important;
+    border: 1px solid #ececec !important;
+}
+
+/* Autofill in light mode should match white inputs */
+.theme-light .auth-input:-webkit-autofill,
+.theme-light .auth-input:-webkit-autofill:hover,
+.theme-light .auth-input:-webkit-autofill:focus,
+.theme-light .auth-input:-webkit-autofill:active {
+    -webkit-box-shadow: 0 0 0px 1000px #ffffff inset !important;
+    box-shadow: 0 0 0px 1000px #ffffff inset !important;
+    -webkit-text-fill-color: #111 !important;
+}
+
+/* Password toggle icon color in light mode */
+.theme-light .password-toggle { color: #6b6b6b !important; }
+
+.theme-light .movie-card {
+    background: #ffffff !important;
+    border: 1px solid #f0f0f0 !important;
+    box-shadow: 0 6px 18px rgba(229,57,53,0.04) !important; /* subtle warm shadow */
+}
+
+/* Ensure auth-card uses plain white background (overrides gradients) */
+.theme-light .auth-card {
+    background: #ffffff !important;
+    box-shadow: 0 6px 20px rgba(0,0,0,0.04) !important;
+}
+.theme-light .movie-card .poster { background: #fffaf9 !important; }
+.theme-light .movie-card h4 { color: #111 !important; }
+
+/* Accent color: red for interactive elements */
+.theme-light .btn,
+.theme-light .btn-small,
+.theme-light .profile-btn:hover,
+.theme-light .dropdown-item:hover { background-color: #ffecec !important; color: #E53935 !important; border-color: #ffdad8 !important; }
+
+.theme-light .dropdown-item.logout { color: #b71c1c !important; }
+
+/* Theme toggle button */
+#theme-toggle-btn { background: transparent; border: none; color: inherit; cursor: pointer; padding: 6px; display:inline-flex; align-items:center; gap:6px; }
+#theme-toggle-btn svg { display:block; }
+
+/* Improve visibility for filter icons and dropdowns in light mode */
+.theme-light .genre-filter-button {
+    color: #333 !important;
+    border-color: #ececec !important;
+}
+.theme-light .genre-filter-button:hover {
+    background: rgba(229,57,53,0.04) !important;
+}
+.theme-light .genre-dropdown {
+    background: #ffffff !important;
+    border-color: #ececec !important;
+    box-shadow: 0 6px 18px rgba(0,0,0,0.04) !important;
+}
+.theme-light .genre-dropdown select { background:#fff !important; color:#111 !important; border-color:#ececec !important; }
+
+/* Target SVG strokes for filter and stats icons to ensure contrast */
+.theme-light .genre-filter-button svg path,
+.theme-light #admin-filter-btn svg path,
+.theme-light #stats-range-btn svg path,
+.theme-light #theme-toggle-btn svg path {
+    stroke: #6b6b6b !important; /* medium gray stroke for icons */
+}
+
+/* Focus outlines for keyboard users (light) */
+.theme-light .genre-filter-button:focus,
+.theme-light #admin-filter-btn:focus,
+.theme-light #theme-toggle-btn:focus {
+    outline: 2px solid rgba(229,57,53,0.18);
+    outline-offset: 2px;
+}
+
+/* Edit profile messages (error / success) */
+.auth-message { padding: 1rem; border-radius: 4px; margin-bottom: 1rem; color: #fff; }
+.auth-message.error { background-color: #FF6B6B; }
+.auth-message.success { background-color: #4CAF50; }
+
+/* Light-mode overrides for auth messages */
+.theme-light .auth-message.error { background-color: #fff0f0 !important; color: #b71c1c !important; border: 1px solid #ffd6d6 !important; }
+.theme-light .auth-message.success { background-color: #f3fff6 !important; color: #0b6623 !important; border: 1px solid #dfffe0 !important; }
+
+/* Improve visibility for filter icons and dropdowns in light mode */
+.theme-light .genre-filter-button {
+    color: #333 !important;
+    border-color: #e6e6e6 !important;
+}
+.theme-light .genre-filter-button:hover {
+    background: rgba(0,0,0,0.04) !important;
+}
+.theme-light .genre-dropdown {
+    background: #ffffff !important;
+    border-color: #e6e6e6 !important;
+    box-shadow: 0 6px 18px rgba(0,0,0,0.06) !important;
+}
+.theme-light .genre-dropdown select { background:#fff !important; color:#111 !important; border-color:#e6e6e6 !important; }
+
+/* Target SVG strokes for filter and stats icons to ensure contrast */
+.theme-light .genre-filter-button svg path,
+.theme-light #admin-filter-btn svg path,
+.theme-light #stats-range-btn svg path,
+.theme-light #theme-toggle-btn svg path {
+    stroke: #333 !important;
+}
+
+.theme-light #admin-filter-btn svg { filter: none; }
+
+.movie-description {
+    color: #bdbdbd;
+    font-size: 0.9rem;
+    margin-top: 0.45rem;
+}
+
+.movie-rating {
+    margin-top: 0.5rem;
+    font-weight: 600;
+    color: #e0e0e0;
+}
+
+.view-details-btn {
+    margin-top: 0.5rem;
+}
+
+/* Responsive adjustments */
+@media (max-width: 900px) {
+    .movie-card { flex: 0 0 calc(50% - 0.625rem); width: auto; }
+    .top-picks-wrapper { flex: 0 0 calc(50% - 0.5rem); }
+}
+
+@media (max-width: 600px) {
+    .movie-card { flex: 0 0 calc(100% - 1rem); }
+    .top-picks-wrapper { flex: 0 0 calc(100% - 1rem); }
+}
+
+/* Fixed card height and consistent layout */
+.movie-card {
+    display: flex;
+    flex-direction: column;
+    height: 440px; /* fixed card length for consistent layout */
+}
+
+.movie-card .poster {
+    height: 240px; /* fixed poster height to keep cards uniform */
+}
+
+.movie-card h4,
+.movie-card p {
+    margin: 0.25rem 0;
+}
+
+.movie-description {
+    /* Force a fixed number of lines with an ellipsis so cards stay uniform */
+    color: #bdbdbd;
+    font-size: 0.9rem;
+    margin-top: 0.45rem;
+    display: -webkit-box;
+    -webkit-box-orient: vertical;
+    -webkit-line-clamp: 3; /* show 3 lines then ellipsis */
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.movie-rating {
+    margin-top: 0.5rem;
+}
+
+.view-details-btn {
+    margin-top: auto; /* push button to bottom */
+}
+
+@media (max-width: 900px) {
+    .movie-card { height: auto; }
+    .movie-card .poster { height: 200px; }
+}
+
+@media (max-width: 600px) {
+    .movie-card { height: auto; }
+    .movie-card .poster { height: 180px; }
+}
+
+/* Password toggle icon styles */
+.password-toggle {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    position: absolute;
+    right: 8px;
+    top: 50%;
+    transform: translateY(-50%);
+    background: transparent;
+    border: none;
+    color: #bdbdbd;
+    cursor: pointer;
+    padding: 6px;
+    line-height: 1;
+}
+
+/* Authoritative override: ensure eye toggles are vertically centered in all contexts */
+.password-wrap,
+.auth-card .password-wrap,
+.admin-dropdown .password-wrap {
+    position: relative !important;
+    display: flex !important;
+    align-items: center !important;
+}
+
+.password-wrap .auth-input,
+.password-wrap input[type="password"],
+.password-wrap input {
+    padding-right: 3.2rem !important; /* reserve space for toggle on the right */
+}
+
+.password-wrap .password-toggle {
+    position: absolute !important;
+    right: 8px !important;
+    top: 50% !important;
+    transform: translateY(-50%) !important;
+    display: inline-flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    height: auto !important;
+    padding: 6px !important;
+}
+
+/* Inline password hint positioned inside the input, left of the toggle */
+.password-wrap .password-hint {
+    position: absolute;
+    left: 0.9rem; /* place hint to the left inside the input visually */
+    top: 50%;
+    transform: translateY(-50%);
+    color: #a0a0a0;
+    font-size: 0.875rem;
+    pointer-events: none; /* don't block clicks */
+    white-space: nowrap;
+    opacity: 0.95;
+    z-index: 1; /* ensure hint is visible above input background */
+}
+
+/* Prevent the toggle from moving or showing hover effects */
+.password-toggle:hover,
+.password-toggle:active,
+.password-toggle:focus {
+    transform: translateY(-50%) !important; /* keep it vertically centered */
+    box-shadow: none !important;
+    background: transparent !important;
+    outline: none !important;
+    color: #bdbdbd !important; /* maintain eye color */
+    padding: 6px !important; /* prevent padding changes */
+}
+
+/* Ensure help text under password inputs doesn't sit under the toggle */
+.password-wrap small {
+    display: block;
+    margin-top: 0.35rem;
+    margin-right: 3.2rem; /* reserve space for the toggle */
+    color: #a0a0a0;
+    font-size: 0.875rem;
+}
+.password-toggle svg { width:18px; height:18px; display:inline-block; }
+.password-toggle .eye-closed, .password-toggle .eye-open { display: none; }
+.password-toggle .eye-open { display: inline-block; }
+.password-toggle[aria-pressed="true"] .eye-open { display: none; }
+.password-toggle[aria-pressed="true"] .eye-closed { display: inline-block; }
+
+/* Hide native reveal controls on some browsers */
+input::-ms-reveal, input::-ms-clear { display: none; }
+
+
+/* Responsive tweaks */
+@media (max-width: 480px) {
+    .auth-card { padding: 1.25rem; border-radius: 8px; }
+    .auth-header h1 { font-size: 1.25rem; }
+}
+
+/* Password overlay removed: show/hide handled by toggling input type */
+/* .password-overlay and .revealed state removed to avoid text hiding when toggling */
+
+
+/* Buttons */
+button,
+.btn {
+    background-color: #E53935;
+    color: white;
+    padding: 0.75rem 1.5rem;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    font-size: 1rem;
+    font-weight: 600;
+    transition: all 0.3s ease;
+    display: inline-block;
+    text-decoration: none;
+}
+
+button:hover,
+.btn:hover {
+    background-color: #C62828;
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(229, 57, 53, 0.3);
+}
+
+button:active,
+.btn:active {
+    transform: translateY(0);
+}
+
+button.btn-block {
+    width: 100%;
+    margin-top: 1rem;
+}
+
+/* Override global button styles for the password toggle (plain eye icon) */
+button.password-toggle {
+    background-color: transparent !important;
+    background: transparent !important;
+    color: #bdbdbd !important;
+    border: none !important;
+    padding: 6px !important;
+    box-shadow: none !important;
+    transform: none !important;
+}
+button.password-toggle:hover {
+    background-color: transparent !important;
+    background: transparent !important;
+    box-shadow: none !important;
+    transform: translateY(-50%) !important;
+    color: #bdbdbd !important;
+    padding: 6px !important;
+}
+button.password-toggle:focus {
+    background-color: transparent !important;
+    background: transparent !important;
+    box-shadow: none !important;
+    transform: translateY(-50%) !important;
+    outline: none !important;
+    color: #bdbdbd !important;
+    padding: 6px !important;
+}
+
+/* Search Form */
+.search-form {
+    display: flex;
+    gap: 1rem;
+    margin: 2rem 0;
+    justify-content: center;
+    flex-wrap: wrap;
+}
+
+.search-input {
+    flex: 1;
+    min-width: 250px;
+    max-width: 400px;
+    padding: 0.75rem 1rem !important;
+    border: 2px solid #E53935 !important;
+    border-radius: 4px;
+    background-color: #2a2a2a !important;
+    color: #e0e0e0 !important;
+}
+
+.search-btn {
+    padding: 0.75rem 2rem;
+    background-color: #E53935;
+    color: white;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    font-weight: 600;
+}
+
+.search-btn:hover {
+    background-color: #C62828;
+}
+
+/* Nav search styles (thin oval appearance) */
+.nav-search {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    height: 100%;
+    padding: 0;
+    margin: 0;
+}
+
+.nav-search-form {
+    display: flex;
+    align-items: center;
+    border: none;
+    background: transparent;
+    margin: 0;
+    height: auto;
+}
+
+.nav-search-input {
+    background: linear-gradient(135deg, rgba(255,255,255,0.05) 0%, rgba(255,255,255,0.02) 100%);
+    border-radius: 999px;
+    padding: 0 14px;
+    height: 38px;
+    display: flex;
+    align-items: center;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
+    border: none;
+    transition: all 0.3s cubic-bezier(0.23, 1, 0.320, 1);
+    position: relative;
+    margin: 0;
+}
+
+.nav-search-input:hover {
+    background: linear-gradient(135deg, rgba(255,255,255,0.08) 0%, rgba(255,255,255,0.04) 100%);
+    box-shadow: 0 4px 12px rgba(229, 57, 53, 0.15);
+}
+
+.nav-search-input:focus-within {
+    background: linear-gradient(135deg, rgba(255,255,255,0.12) 0%, rgba(255,255,255,0.06) 100%);
+    box-shadow: 0 4px 16px rgba(229, 57, 53, 0.25);
+}
+
+.nav-search-input .search-input {
+    background: transparent !important;
+    border: none !important;
+    color: #f0f0f0;
+    padding: 0 10px;
+    width: 200px;
+    height: 100%;
+    outline: none !important;
+    font-size: 0.95rem;
+    letter-spacing: 0.3px;
+    font-weight: 400;
+    box-shadow: none !important;
+}
+
+.nav-search-input .search-input::placeholder {
+    color: #999;
+    font-weight: 400;
+}
+
+.nav-search-input .search-input:focus {
+    outline: none !important;
+    box-shadow: none !important;
+    border: none !important;
+    border-color: transparent !important;
+}
+
+.nav-search-btn {
+    background: transparent;
+    border: none;
+    color: #999;
+    padding: 6px 4px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    margin-left: 6px;
+    cursor: pointer;
+    transition: all 0.3s cubic-bezier(0.23, 1, 0.320, 1);
+    border-radius: 50%;
+}
+
+.nav-search-btn:hover {
+    color: #E53935;
+    background: rgba(229, 57, 53, 0.1);
+}
+
+.nav-search-btn:active {
+    transform: scale(0.95);
+}
+
+.nav-search-input svg { 
+    color: #999;
+    width: 18px;
+    height: 18px;
+    transition: all 0.3s ease;
+}
+
+.nav-search-btn:hover svg {
+    color: #E53935;
+}
+/* Movie Cards */
+.movie-card {
+    background-color: #1a1a1a;
+    border: 1px solid #333;
+    border-radius: 8px;
+    padding: 0.6rem !important;
+    transition: all 0.3s ease;
+    overflow: hidden;
+    display: inline-block !important;
+    width: 200px !important;
+    margin: 0 !important;
+    text-decoration: none;
+    color: inherit;
+    vertical-align: top;
+    flex: 0 0 200px !important;
+}
+
+.movie-card .movie-description {
+    color: #cfcfcf;
+    font-size: 0.95rem;
+    line-height: 1.2rem;
+    margin: 0.5rem 0 0.75rem;
+    max-height: 3.6rem; /* approx 3 lines */
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.movie-card .movie-description-full { max-height: none; overflow: visible; }
+.movie-card .read-more {
+    display: inline-block;
+    margin-top: 0.35rem;
+    color: #E53935;
+    text-decoration: none;
+    font-weight: 700;
+    cursor: pointer;
+}
+.movie-card .read-more[aria-expanded="true"] { color: #C62828; }
+
+.movie-card:hover {
+    border-color: #E53935;
+    box-shadow: 0 8px 24px rgba(229, 57, 53, 0.2);
+    transform: translateY(-4px);
+}
+
+.poster {
+    width: 100%;
+    height: 280px;
+    object-fit: cover;
+    border-radius: 4px;
+    margin-bottom: 1rem;
+}
+
+.movie-card h4 {
+    color: #e0e0e0;
+    font-size: 1.1rem;
+    margin-bottom: 0.5rem;
+}
+
+.movie-list {
+    /* Use flexbox with fixed mini card width so cards appear exactly like the sample */
+    display: flex !important;
+    flex-flow: row wrap !important;
+    gap: 0.5rem;
+    padding: 0.5rem;
+    justify-content: flex-start;
+    align-items: flex-start;
+    width: 100% !important;
+}
+
+.movie-card {
+    flex: 0 0 200px !important;
+    width: 200px !important;
+    height: auto !important;
+    box-sizing: border-box;
+    margin: 0 !important;
+    padding: 0.6rem !important;
+    display: inline-block !important;
+    background-color: #1a1a1a;
+    border: 1px solid #333;
+    border-radius: 8px;
+    transition: all 0.3s ease;
+    overflow: hidden;
+    text-decoration: none;
+    color: inherit;
+    vertical-align: top;
+}
+
+/* Strong override to ensure flex wrapping works */
+.movie-list > .movie-card {
+    flex: 0 0 200px !important;
+    width: 200px !important;
+}
+
+/* movie-list header styles */
+.movie-list h3 {
+    color: #E53935;
+    font-size: 1.8rem;
+    margin-bottom: 1.5rem;
+    margin-top: 2rem;
+    margin-left: 0;
+    padding-left: 2rem;
+    border-bottom: 2px solid #E53935;
+    padding-bottom: 0.5rem;
+}
+
+/* (removed grid-specific rule so flex-based mini cards keep their fixed width) */
+
+/* Star Rating */
+.star-rating {
+    display: flex;
+    gap: 0.25rem;
+    margin: 1rem 0;
+    flex-direction: row-reverse;
+}
+
+.star-rating input[type="radio"] {
+    display: none;
+}
+
+.star-rating label {
+    color: #555;
+    font-size: 1.5rem;
+    cursor: pointer;
+    transition: color 0.2s ease;
+}
+
+/* Hover effect: fill stars up to and including the hovered star */
+.star-rating:hover label {
+    color: #555;
+}
+
+.star-rating label:hover,
+.star-rating label:hover ~ label {
+    color: #FFEB3B;
+}
+
+/* Checked/selected state: keep stars filled */
+.star-rating input:checked ~ label {
+    color: #FFEB3B;
+}
+
+/* Ensure hover works even after selection */
+.star-rating input:checked:hover ~ label,
+.star-rating input:checked ~ label:hover,
+.star-rating input:checked ~ label:hover ~ label {
+    color: #FFEB3B;
+}
+
+/* Rating Form */
+.rating-form {
+    margin-top: 1rem;
+    padding-top: 1rem;
+    border-top: 1px solid #333;
+}
+
+.rating-form button[type="submit"] {
+    background-color: #388E3C !important;
+    color: white !important;
+}
+
+.rating-form button[type="submit"]:hover {
+    background-color: #2E7D32 !important;
+}
+
+.rating-form h5 {
+    color: #e0e0e0;
+    margin-bottom: 0.5rem;
+}
+
+/* Error Messages */
+.error,
+.field-error {
+    color: #FF6B6B;
+    font-size: 0.875rem;
+    margin-top: 0.25rem;
+}
+
+p {
+    color: #a0a0a0;
+}
+
+/* Movie rating visibility toggle */
+.movie-rating {
+    display: block;
+    color: #a0a0a0;
+    font-weight: 600;
+}
+
+/* Poster (compact for mini cards) */
+.poster {
+    width: 100%;
+    height: 140px; /* compact poster height for mini cards */
+    object-fit: cover;
+    border-radius: 4px;
+    margin-bottom: 0.5rem;
+}
+
+/* Rating widget (hidden until user opts to rate) */
+.rating-widget {
+    display: none;
+    margin-top: 0.75rem;
+}
+.rating-widget.active {
+    display: block;
+}
+
+.movie-card h4 {
+    color: #e0e0e0;
+    font-size: 1rem;
+    margin-bottom: 0.4rem;
+}
+.movie-card p {
+    color: #a0a0a0;
+    font-size: 0.85rem;
+    margin-bottom: 0.4rem;
+}
+
+
+/* Profile avatar */
+.avatar {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 30px;
+    height: 30px;
+    border-radius: 50%;
+    background: linear-gradient(135deg, #E53935 0%, #C62828 100%);
+    color: white;
+    font-weight: 700;
+    margin-right: 0.5rem;
+    font-size: 0.9rem;
+}
+
+.profile-btn .avatar { 
+    vertical-align: middle;
+}
+
+.profile-btn:hover .avatar {
+    background: linear-gradient(135deg, #E53935 0%, #C62828 100%);
+}
+
+/* Toggle ratings button (small) */
+.btn-small {
+    padding: 0.4rem 0.6rem;
+    font-size: 0.9rem;
+    border-radius: 4px;
+}
+/* Nav search styles */
+.nav-search { display: flex; align-items: center; }
+.nav-search .search-form { margin: 0; display: flex; align-items: center; }
+
+/* Make nav list compact so items can be ordered: search, home, profile */
+nav ul { display: flex; align-items: center; gap: 1rem; }
+nav ul li { list-style: none; }
+
+/* Notification banner (small welcome) */
+.notification {
+    background: linear-gradient(90deg, rgba(229,57,53,0.15), rgba(198,40,40,0.1));
+    border: 1px solid rgba(229,57,53,0.2);
+    color: #f0f0f0;
+    padding: 1rem 1.5rem;
+    border-radius: 6px;
+    display: inline-flex;
+    justify-content: center;
+    align-items: center;
+    gap: 1rem;
+    text-align: center;
+    animation: fadeOutNotification 3s ease-in-out forwards;
+    max-width: 600px;
+}
+
+.theme-light .notification {
+    background: linear-gradient(90deg, rgba(229,57,53,0.12), rgba(198,40,40,0.08));
+    border: 1px solid rgba(229,57,53,0.25);
+    color: #000;
+}
+
+@keyframes fadeOutNotification {
+    0% {
+        opacity: 1;
+        transform: translateY(0);
+    }
+    85% {
+        opacity: 1;
+        transform: translateY(0);
+    }
+    100% {
+        opacity: 0;
+        transform: translateY(-10px);
+        display: none;
+    }
+}
+
+.notification p { margin: 0; color: #dcdcdc; }
+.theme-light .notification p { color: #000 !important; }
+
+/* Welcome notification: fixed at top-center, only used for one-time welcome after login */
+.notification.welcome {
+    position: fixed;
+    top: 90px; /* sits below the nav */
+    left: 50%;
+    transform: translateX(-50%);
+    z-index: 2000;
+    padding: 0.6rem 1rem;
+    border-radius: 6px;
+    animation: fadeOutNotification 3s ease-in-out forwards; /* 3 seconds */
+}
+
+/* Strong, final rules to ensure movie cards are equal height and uniform
+   These override earlier/legacy rules and make the card layout predictable. */
+.movie-list .movie-card {
+    box-sizing: border-box !important;
+    display: flex !important;
+    flex-direction: column !important;
+    height: 440px !important; /* fixed card height */
+    overflow: hidden !important; /* prevent children from increasing height */
+    flex: 0 0 220px !important;
+    width: 220px !important;
+}
+
+/* Make user movie-list cards a light gray to stand out from the page background */
+.movie-list .movie-card {
+    background-color: #f6f6f7 !important;
+    border: 1px solid #e6e6e6 !important;
+    color: #111 !important;
+}
+
+.theme-light .movie-list .movie-card h4 { color: #111 !important; }
+.theme-light .movie-list .movie-card p { color: #555 !important; }
+
+/* Default (dark mode): make movie card titles white for contrast */
+.movie-list .movie-card h4,
+.top-picks .movie-card h4,
+.top-picks-row .movie-card h4 { color: #fff !important; }
+
+/* In light theme keep cards visually light and ensure titles/text are dark */
+.theme-light .movie-list .movie-card {
+    background-color: #dcdcdc !important; /* darker gray for cards in light mode */
+    border: 1px solid #cfcfcf !important;
+}
+
+/* Top Picks cards: match movie-list styling so they appear light gray */
+.top-picks .movie-card,
+.top-picks-row .movie-card {
+    background-color: #f6f6f7 !important;
+    border: 1px solid #e6e6e6 !important;
+    color: #111 !important;
+}
+.theme-light .top-picks .movie-card h4,
+.theme-light .top-picks-row .movie-card h4 { color: #111 !important; }
+.top-picks .movie-card p,
+.top-picks-row .movie-card p { color: #555 !important; }
+
+/* Darker gray for Top Picks cards in light theme for contrast */
+.theme-light .top-picks .movie-card,
+.theme-light .top-picks-row .movie-card {
+    background-color: #dcdcdc !important;
+    border: 1px solid #cfcfcf !important;
+}
+
+/* Ensure dropdown/select text is black in light mode for readability */
+.theme-light select,
+.theme-light select option,
+.theme-light .dropdown-toggle,
+.theme-light .dropdown-menu,
+.theme-light .dropdown-item {
+    color: #000 !important;
+    background-color: #fff !important;
+}
+
+.theme-light .dropdown-item:hover,
+.theme-light select:focus,
+.theme-light .dropdown-menu .dropdown-item:focus {
+    color: #000 !important;
+    background-color: #f2f2f2 !important;
+}
+
+/* Quick user info and header username: black in light mode, white in dark */
+.profile-dropdown .profile-info p strong,
+.profile-dropdown .profile-info p { color: #fff !important; }
+.profile-btn { color: #fff !important; }
+
+.theme-light .profile-dropdown .profile-info p strong,
+.theme-light .profile-dropdown .profile-info p,
+.theme-light .profile-btn {
+    color: #000 !important;
+}
+
+/* Edit Profile: ensure inputs, textarea, and placeholders are black in light mode */
+.theme-light .auth-container input.auth-input,
+.theme-light .auth-container textarea.auth-input,
+.theme-light .auth-container input.auth-input[disabled] {
+    color: #666666 !important; /* darker gray for user-entered text in edit profile */
+    background-color: #ffffff !important;
+    border-color: #dcdcdc !important;
+}
+
+.theme-light .auth-container input.auth-input::placeholder,
+.theme-light .auth-container textarea.auth-input::placeholder,
+.theme-light .auth-container input::placeholder {
+    color: #9e9e9e !important; /* placeholder gray */
+    opacity: 1 !important;
+}
+
+/* Target password inputs placeholders specifically in edit-profile */
+.theme-light .auth-container input[type="password"].auth-input::placeholder {
+    color: #9e9e9e !important;
+    opacity: 1 !important;
+}
+
+/* Labels and helper text inside the edit profile container */
+.theme-light .auth-container .auth-field label,
+.theme-light .auth-container .auth-field small {
+    color: #666666 !important;
+}
+
+.movie-list .movie-card .poster,
+.movie-list .movie-card .poster-placeholder {
+    width: 100% !important;
+    height: 240px !important; /* fixed poster height */
+    object-fit: cover !important;
+    border-radius: 4px !important;
+    margin-bottom: 0.6rem !important;
+}
+
+.movie-list .movie-card .movie-description {
+    display: -webkit-box !important;
+    -webkit-box-orient: vertical !important;
+    line-clamp: 3 !important;
+    -webkit-line-clamp: 3 !important;
+    overflow: hidden !important;
+    text-overflow: ellipsis !important;
+}
+
+.movie-list .movie-card .view-details-btn {
+    margin-top: auto !important; /* push button to bottom */
+    white-space: nowrap !important;
+}
+
+@media (max-width: 900px) {
+    .movie-list .movie-card { height: auto !important; flex: 0 0 calc(50% - 0.625rem) !important; width: auto !important; }
+    .movie-list .movie-card .poster,
+    .movie-list .movie-card .poster-placeholder { height: 200px !important; }
+}
+
+@media (max-width: 600px) {
+    .movie-list .movie-card { height: auto !important; flex: 0 0 calc(100% - 1rem) !important; }
+    .movie-list .movie-card .poster,
+    .movie-list .movie-card .poster-placeholder { height: 180px !important; }
+}
+
+/* Global override to force identical styling for all movie cards across the site
+   This mirrors the `.movie-list .movie-card` rules so any `.movie-card` used
+   outside of `.movie-list` will still match the Dark Knight appearance. */
+.movie-card {
+    box-sizing: border-box !important;
+    display: flex !important;
+    flex-direction: column !important;
+    height: 440px !important;
+    overflow: hidden !important;
+    flex: 0 0 220px !important;
+    width: 220px !important;
+    background: linear-gradient(180deg, #141414 0%, #1a1a1a 100%) !important;
+    border: 1px solid #2a2a2a !important;
+    border-radius: 8px !important;
+    padding: 0.9rem !important;
+    box-shadow: 0 6px 20px rgba(0,0,0,0.5) !important;
+}
+
+.movie-card .poster,
+.movie-card .poster-placeholder {
+    width: 100% !important;
+    height: 240px !important;
+    object-fit: cover !important;
+    border-radius: 4px !important;
+    margin-bottom: 0.6rem !important;
+}
+
+.movie-card .movie-description {
+    display: -webkit-box !important;
+    -webkit-box-orient: vertical !important;
+    line-clamp: 3 !important;
+    -webkit-line-clamp: 3 !important;
+    overflow: hidden !important;
+    text-overflow: ellipsis !important;
+}
+
+.movie-card .view-details-btn {
+    margin-top: auto !important;
+    white-space: nowrap !important;
+}
+
+@media (max-width: 900px) {
+    .movie-card { height: auto !important; flex: 0 0 calc(50% - 0.625rem) !important; width: auto !important; }
+    .movie-card .poster,
+    .movie-card .poster-placeholder { height: 200px !important; }
+}
+
+@media (max-width: 600px) {
+    .movie-card { height: auto !important; flex: 0 0 calc(100% - 1rem) !important; }
+    .movie-card .poster,
+    .movie-card .poster-placeholder { height: 180px !important; }
+}
+.notification .notice-action { margin-left: 1rem; }
+
+/* Auth Links */
+.auth-link {
+    text-align: center;
+    margin-top: 1rem;
+}
+
+.auth-link a {
+    color: #E53935;
+    text-decoration: none;
+    font-weight: 600;
+}
+
+.auth-link a:hover {
+    text-decoration: underline;
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+    nav {
+        flex-direction: column;
+        gap: 1rem;
+    }
+
+    nav ul {
+        flex-direction: column;
+        gap: 0.5rem;
+    }
+
+    .container {
+        padding: 1rem;
+    }
+
+    .search-form {
+        flex-direction: column;
+    }
+
+    .search-input {
+        max-width: 100% !important;
+    }
+
+    .movie-list {
+        justify-content: center;
+    }
+
+    form {
+        max-width: 100%;
+    }
+}
+
+/* Empty State */
+.empty-state {
+    text-align: center;
+    padding: 3rem 1rem;
+    color: #a0a0a0;
+}
+
+.empty-state p {
+    font-size: 1.1rem;
+}
+
+/* Dashboard Layout */
+.dashboard {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 2rem;
+}
+
+@media (min-width: 1024px) {
+    .dashboard {
+        grid-template-columns: 1fr;
+    }
+}
+
+/* Hero Section */
+.hero {
+    text-align: center;
+    padding: 3rem 1rem;
+    background: linear-gradient(135deg, #E53935 0%, #C62828 100%);
+    border-radius: 8px;
+    margin-bottom: 2rem;
+    color: white;
+}
+
+.hero h1 {
+    font-size: 2.5rem;
+    margin-bottom: 1rem;
+}
+
+.hero p {
+    font-size: 1.2rem;
+    color: rgba(255, 255, 255, 0.9);
+}
+
+/* Profile Form */
+.profile-form {
+    background-color: #1a1a1a;
+    padding: 2rem;
+    border-radius: 8px;
+    border: 1px solid #333;
+    max-width: 500px;
+    margin: 2rem auto;
+}
+
+.profile-form h1 {
+    text-align: center;
+    color: #E53935;
+    margin-bottom: 1.5rem;
+}
+
+.form-actions {
+    display: flex;
+    gap: 1rem;
+    margin-top: 2rem;
+}
+
+.btn-cancel {
+    background-color: #6e6e6e;
+    color: #ffffff;
+    text-decoration: none;
+    text-align: center;
+    display: inline-block;
+    padding: 0.6rem 1rem;
+    border-radius: 4px;
+}
+
+.btn-cancel:hover {
+    background-color: #565656;
+}
+
+/* Light theme button overrides: primary stays red, cancel becomes light gray */
+.theme-light .btn {
+    background-color: #E53935 !important;
+    color: #ffffff !important;
+}
+.page-root {
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+}
+.page-content {
+    flex: 1 0 auto;
+}
+.site-footer {
+    margin-top: 0;
+}
+.theme-light .btn:hover {
+    background-color: #c62828 !important;
+}
+.theme-light .btn-cancel {
+    background-color: #e9e9e9 !important;
+    color: #111 !important;
+    border: 1px solid #dedede !important;
+}
+.theme-light .btn-cancel:hover {
+    background-color: #e0e0e0 !important;
+}
+
+/* Logout Modal Styles */
+.logout-modal {
+    display: none;
+    position: fixed;
+    inset: 0;
+    background: rgba(0,0,0,0.6);
+    z-index: 2000;
+    align-items: center;
+    justify-content: center;
+    padding: 2rem;
+}
+
+.logout-modal.active {
+    display: flex;
+}
+
+.logout-modal-content {
+    background: #111;
+    border: 1px solid #222;
+    padding: 1.5rem 2rem;
+    border-radius: 8px;
+    max-width: 480px;
+    width: 100%;
+    box-shadow: 0 10px 40px rgba(0,0,0,0.6);
+    text-align: center;
+}
+
+.logout-modal-content h2 {
+    margin-bottom: 0.5rem;
+    color: #E53935;
+}
+
+.logout-modal-content p {
+    color: #cfcfcf;
+    margin-bottom: 1rem;
+}
+
+.logout-modal-buttons {
+    display: flex;
+    gap: 1rem;
+    justify-content: center;
+}
+
+.logout-btn-confirm {
+    background: #E53935;
+    border: none;
+    color: #fff;
+    padding: 0.6rem 1.2rem;
+    border-radius: 6px;
+    cursor: pointer;
+    font-weight: 600;
+}
+
+.logout-btn-cancel {
+    background: #333;
+    border: 1px solid #444;
+    color: #e0e0e0;
+    padding: 0.6rem 1.2rem;
+    border-radius: 6px;
+    cursor: pointer;
+}
+
+.logout-btn-confirm:hover { background: #C62828; }
+.logout-btn-cancel:hover { background: #2a2a2a; }
+
+/* Movie Modal */
+.movie-modal {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 1000;
+}
+
+.movie-modal .modal-overlay {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.7);
+    cursor: pointer;
+}
+
+.movie-modal .modal-content {
+    position: relative;
+    background: #1a1a1a;
+    border: 1px solid #E53935;
+    border-radius: 8px;
+    max-width: 800px;
+    max-height: 90vh;
+    overflow-y: auto;
+    padding: 2rem;
+    z-index: 1001;
+    box-shadow: 0 12px 40px rgba(0, 0, 0, 0.8);
+}
+
+.movie-modal .modal-close {
+    position: absolute;
+    top: 1rem;
+    right: 1rem;
+    background: none;
+    border: none;
+    color: #E53935;
+    font-size: 2rem;
+    cursor: pointer;
+    padding: 0;
+    width: 2.5rem;
+    height: 2.5rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.movie-modal .modal-close:hover {
+    color: #C62828;
+}
+
+.movie-modal .modal-body {
+    display: flex;
+    gap: 2rem;
+}
+
+.movie-modal .modal-poster {
+    width: 200px;
+    height: 300px;
+    object-fit: cover;
+    border-radius: 6px;
+    flex-shrink: 0;
+}
+
+.movie-modal .modal-info {
+    flex: 1;
+}
+
+.movie-modal .modal-info h2 {
+    color: #e0e0e0;
+    font-size: 1.8rem;
+    margin-bottom: 1rem;
+}
+
+/* Custom scrollbar - gray palette, cross-browser
+   Design: slim dark track, rounded thumb with subtle inner lighter grip */
+/* WebKit (Chrome, Edge, Safari) */
+*::-webkit-scrollbar {
+    width: 10px;
+    height: 10px;
+}
+*::-webkit-scrollbar-track {
+    background: #141414; /* very dark track */
+    border-radius: 12px;
+    margin: 4px 0; /* give a small breathing room */
+}
+*::-webkit-scrollbar-thumb {
+    background: linear-gradient(180deg, #3d3d3d 0%, #2f2f2f 100%);
+    border-radius: 8px;
+    border: 2px solid #141414; /* creates inset effect */
+    background-clip: padding-box;
+    box-shadow: inset 0 1px 0 rgba(255,255,255,0.03);
+}
+/* subtle lighter grip line in the middle of the thumb */
+*::-webkit-scrollbar-thumb {
+    background-image: linear-gradient(180deg, rgba(255,255,255,0) 40%, rgba(255,255,255,0.06) 50%, rgba(255,255,255,0) 60%);
+    background-blend-mode: overlay;
+}
+*::-webkit-scrollbar-thumb:hover {
+    background: linear-gradient(180deg, #545454 0%, #424242 100%);
+}
+
+/* Firefox */
+* {
+    scrollbar-width: thin;
+    scrollbar-color: #3d3d3d #141414; /* thumb, track */
+}
+
+/* Ensure modal inner scrollbars match the design */
+.movie-modal .modal-content::-webkit-scrollbar { width: 10px; }
+.movie-modal .modal-content::-webkit-scrollbar-track { background: #141414; }
+.movie-modal .modal-content::-webkit-scrollbar-thumb { background: linear-gradient(180deg, #3d3d3d 0%, #2f2f2f 100%); border:2px solid #141414; }
+.movie-modal .modal-content { scrollbar-color: #3d3d3d #141414; }
+
+.theme-light .movie-modal .modal-content {
+    background: #ffffff;
+    border: 1px solid #E53935;
+}
+
+.theme-light .movie-modal .modal-info h2 {
+    color: #000;
+}
+
+.theme-light .movie-modal .modal-info p {
+    color: #333;
+}
+
+.movie-modal .modal-info p {
+    color: #cfcfcf;
+    font-size: 1rem;
+    margin-bottom: 0.75rem;
+    line-height: 1.6;
+}
+
+.movie-modal .modal-description {
+    color: #b0b0b0;
+    font-size: 0.95rem;
+    margin-top: 1rem;
+    padding-top: 1rem;
+    border-top: 1px solid #333;
+}
+
+.movie-modal .modal-actions {
+    margin-top: 1.5rem;
+        /* Make sure the button doesn't wrap and stays consistent */
+    .view-details-btn {
+        white-space: nowrap;
+    }
+    padding-top: 1rem;
+    border-top: 1px solid #333;
+}
+
+.movie-modal .modal-actions .btn {
+    margin-right: 1rem;
+}
+
+.movie-modal .rating-widget {
+    margin-top: 1rem;
+}
+
+@media (max-width: 600px) {
+    .movie-modal .modal-content {
+        max-width: 95%;
+        padding: 1.5rem;
+    }
+    .movie-modal .modal-body {
+        flex-direction: column;
+        align-items: center;
+    }
+    .movie-modal .modal-poster {
+        width: 150px;
+        height: 225px;
+    }
+}
+
+/* Small square 'more' button: positioned bottom-right inside any .movie-card */
+.movie-card {
+    position: relative !important;
+}
+
+.movie-card .more-btn {
+    position: absolute !important;
+    right: 0.75rem !important;
+    bottom: 0.75rem !important;
+    width: 44px !important;
+    height: 44px !important;
+    padding: 0 !important;
+    border-radius: 6px !important;
+    display: inline-flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    font-size: 0.85rem !important;
+    font-weight: 700 !important;
+    line-height: 1 !important;
+}
+
+@media (max-width: 600px) {
+    .movie-card .more-btn { right: 0.5rem !important; bottom: 0.5rem !important; width: 40px !important; height: 40px !important; }
+}
+
+/* Light mode logout modal styling */
+.theme-light .logout-modal-content {
+    background-color: #ffffff !important;
+    border-color: #d0d0d0 !important;
+    color: #333333 !important;
+}
+
+.theme-light .logout-modal-content h2 {
+    color: #E53935 !important;
+}
+
+.theme-light .logout-modal-content p {
+    color: #555555 !important;
+}
+
+.theme-light .logout-btn-confirm {
+    background-color: #E53935 !important;
+    color: #ffffff !important;
+    border: none !important;
+}
+
+.theme-light .logout-btn-confirm:hover {
+    background-color: #c62828 !important;
+}
+
+.theme-light .logout-btn-cancel {
+    background-color: #f0f0f0 !important;
+    border-color: #d0d0d0 !important;
+    color: #333333 !important;
+}
+
+.theme-light .logout-btn-cancel:hover {
+    background-color: #e0e0e0 !important;
+}
+
+/* Archive modal light mode (uses same logout-modal class) */
+.theme-light #archiveModal .logout-modal-content {
+    background-color: #ffffff !important;
+    border-color: #d0d0d0 !important;
+}
+
+.theme-light #archiveModalTitle {
+    color: #E53935 !important;
+}
+
+.theme-light #archiveModalMessage {
+    color: #555555 !important;
+}
+
+
+

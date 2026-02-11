@@ -1,0 +1,237 @@
+{% load static %}
+{% load dict_extras %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>FilmOracle - Movie Recommendations</title>
+    <link rel="stylesheet" href="{% static 'css/style.css' %}">
+</head>
+<body>
+    <!-- Navigation -->
+    <nav>
+        <div class="logo">FilmOracle</div>
+        <ul>
+            {% if user.is_authenticated %}
+                <li class="profile-menu">
+                    <button class="profile-btn" id="profile-btn"><span class="avatar">{{ user.username|slice:":1"|upper }}</span>{{ user.username }}</button>
+                    <div class="profile-dropdown" id="profile-dropdown">
+                        <div class="profile-info">
+                            <p><strong>{{ user.username }}</strong></p>
+                            <p style="font-size: 0.9rem; color: #a0a0a0;">{{ user.email }}</p>
+                            {% if user.profile and user.profile.bio %}
+                                <p style="font-size: 0.85rem; color: #a0a0a0; margin-top: 0.5rem; font-style: italic;">{{ user.profile.bio }}</p>
+                            {% endif %}
+                        </div>
+                        <a href="{% url 'edit_profile' %}" class="dropdown-item">Edit Profile</a>
+                        <a href="{% url 'logout' %}" class="dropdown-item logout" onclick="showLogoutConfirm(event);">Logout</a>
+                    </div>
+                </li>
+                <li>
+                    <button id="theme-toggle-btn" title="Toggle theme" aria-pressed="false">
+                        <svg id="theme-icon-sun" width="18" height="18" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" style="display:none;">
+                            <circle cx="12" cy="12" r="4" stroke="#E53935" stroke-width="1.6"/>
+                            <g stroke="#E53935" stroke-width="1.6">
+                                <path d="M12 2v2" stroke-linecap="round" />
+                                <path d="M12 20v2" stroke-linecap="round" />
+                                <path d="M4.93 4.93l1.41 1.41" stroke-linecap="round" />
+                                <path d="M17.66 17.66l1.41 1.41" stroke-linecap="round" />
+                                <path d="M2 12h2" stroke-linecap="round" />
+                                <path d="M20 12h2" stroke-linecap="round" />
+                                <path d="M4.93 19.07l1.41-1.41" stroke-linecap="round" />
+                                <path d="M17.66 6.34l1.41-1.41" stroke-linecap="round" />
+                            </g>
+                        </svg>
+                        <svg id="theme-icon-moon" width="18" height="18" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                            <path d="M21 12.79A9 9 0 1111.21 3 7 7 0 0021 12.79z" stroke="#cfcfcf" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/>
+                        </svg>
+                    </button>
+                </li>
+            {% else %}
+                <li><a href="{% url 'login' %}">Login</a></li>
+                <li><a href="{% url 'register' %}">Register</a></li>
+            {% endif %}
+            <li><a href="{% url 'home' %}">Home</a></li>
+            <li class="nav-search">{% include 'molecules/search_bar.html' %}</li>
+        </ul>
+    </nav>
+
+    <!-- Notification (small welcome) -->
+    {% if user.is_authenticated %}
+        <div style="width: 100%; text-align: center; margin: 1rem 0;">
+            <div class="notification">
+                {% if user.userprofile.is_new %}
+                    <p style="color: #000;">Welcome to FilmOracle — discover your next favorite movie with personalized recommendations.</p>
+                {% else %}
+                    <p style="color: #000;">Welcome back to FilmOracle — discover your next favorite movie with personalized recommendations.</p>
+                {% endif %}
+            </div>
+        </div>
+    {% else %}
+        <div style="width: 100%; text-align: center; margin: 1rem 0;">
+            <div class="notification">
+                <p style="color: #000;">Welcome to FilmOracle — discover your next favorite movie with personalized recommendations.</p>
+                <div class="notice-action" style="margin-left: 1rem;"><a href="{% url 'register' %}" class="btn">Create Account</a></div>
+            </div>
+        </div>
+    {% endif %}
+
+    <!-- Main Content -->
+    <div class="container">
+        {% if user.is_authenticated %}
+            <!-- Show personalized content -->
+            {% include 'organisms/top_picks.html' %}
+
+            <!-- All Movies -->
+            <h3 style="color: #E53935; font-size: 1.8rem; margin-top: 1rem; border-bottom: 2px solid #E53935; padding-bottom: 0.5rem; padding-left: 2rem;">Explore Movies</h3>
+            {% include 'organisms/movie_list.html' %}
+        {% else %}
+            <!-- Show call-to-action for logged-out users -->
+            <div style="text-align: center; padding: 3rem 1rem;">
+                <h2 style="color: #E53935; margin-bottom: 1rem;">Ready to find your perfect movie?</h2>
+                <p style="font-size: 1.1rem; color: #a0a0a0; margin-bottom: 2rem;">
+                    Sign up to rate movies and get personalized recommendations based on your taste.
+                </p>
+                <a href="{% url 'register' %}" class="btn">Create Account</a>
+                <p style="margin-top: 1rem; color: #a0a0a0;">
+                    Already have an account? <a href="{% url 'login' %}" style="color: #E53935; text-decoration: none; font-weight: 600;">Sign in</a>
+                </p>
+            </div>
+        {% endif %}
+    </div>
+
+    <!-- Footer -->
+    <footer style="background-color: #1a1a1a; border-top: 1px solid #333; padding: 2rem; text-align: center; margin-top: 3rem; color: #a0a0a0;">
+        <p>&copy; 2025 FilmOracle. Rate movies and discover your next favorite.</p>
+    </footer>
+    <!-- Logout Confirmation Modal -->
+    <div id="logoutModal" class="logout-modal">
+        <div class="logout-modal-content">
+            <h2>Confirm Logout</h2>
+            <p>Are you sure you want to logout? You'll need to login again to access your account.</p>
+            <div class="logout-modal-buttons">
+                <button class="logout-btn-confirm" onclick="confirmLogout();">Logout</button>
+                <button class="logout-btn-cancel" onclick="cancelLogout();">Cancel</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        function cancelLogout() {
+            const modal = document.getElementById('logoutModal');
+            if (modal) modal.classList.remove('active');
+        }
+
+        function showLogoutConfirm(event) {
+            event.preventDefault();
+            const modal = document.getElementById('logoutModal');
+            if (modal) modal.classList.add('active');
+        }
+
+        function confirmLogout() {
+            window.location.href = '{% url "logout" %}';
+        }
+
+        // Close modal when clicking outside of it
+        document.addEventListener('click', function(e) {
+            const modal = document.getElementById('logoutModal');
+            if (!modal) return;
+            if (e.target === modal) cancelLogout();
+        });
+
+        // Profile dropdown toggle (robust)
+        (function() {
+            const profileBtn = document.getElementById('profile-btn');
+            const profileDropdown = document.getElementById('profile-dropdown');
+            if (!profileBtn || !profileDropdown) return;
+            profileBtn.addEventListener('click', (e) => {
+                e.stopPropagation();
+                profileDropdown.classList.toggle('active');
+            });
+
+            document.addEventListener('click', (e) => {
+                if (!profileBtn.contains(e.target) && !profileDropdown.contains(e.target)) {
+                    profileDropdown.classList.remove('active');
+                }
+            });
+        })();
+    </script>
+    <script>
+        // Theme toggle initialization for home page
+        (function(){
+            const btn = document.getElementById('theme-toggle-btn');
+            if (!btn) return;
+            const iconSun = document.getElementById('theme-icon-sun');
+            const iconMoon = document.getElementById('theme-icon-moon');
+
+            function applyTheme(t) {
+                if (t === 'light') {
+                    document.documentElement.classList.add('theme-light');
+                    btn.setAttribute('aria-pressed','true');
+                    if (iconSun) iconSun.style.display = '';
+                    if (iconMoon) iconMoon.style.display = 'none';
+                } else {
+                    document.documentElement.classList.remove('theme-light');
+                    btn.setAttribute('aria-pressed','false');
+                    if (iconSun) iconSun.style.display = 'none';
+                    if (iconMoon) iconMoon.style.display = '';
+                }
+            }
+
+            const stored = localStorage.getItem('theme');
+            if (stored) applyTheme(stored);
+            else {
+                const prefersLight = window.matchMedia && window.matchMedia('(prefers-color-scheme: light)').matches;
+                applyTheme(prefersLight ? 'light' : 'dark');
+            }
+
+            btn.addEventListener('click', () => {
+                const isLight = document.documentElement.classList.contains('theme-light');
+                const next = isLight ? 'dark' : 'light';
+                applyTheme(next);
+                localStorage.setItem('theme', next);
+            });
+        })();
+    </script>
+    <script>
+        // Diagnostic: verify server-side session user matches the rendered user.
+        (function(){
+            const renderedUser = '{{ user.username|default:"" }}';
+            if (!renderedUser) return;
+
+            fetch('{% url "whoami" %}', { credentials: 'same-origin' })
+                .then(r => r.json())
+                .then(data => {
+                    if (!data) return;
+                    const serverUser = data.username || '';
+                    if (serverUser && serverUser !== renderedUser) {
+                        const warn = document.createElement('div');
+                        warn.style.position = 'fixed';
+                        warn.style.right = '1rem';
+                        warn.style.bottom = '1rem';
+                        warn.style.background = '#332';
+                        warn.style.color = '#fff';
+                        warn.style.padding = '0.6rem 0.8rem';
+                        warn.style.borderRadius = '6px';
+                        warn.style.boxShadow = '0 2px 8px rgba(0,0,0,0.4)';
+                        warn.style.zIndex = '9999';
+                        warn.textContent = `Session mismatch: server sees '${serverUser}' but page shows '${renderedUser}'.`;
+                        const btn = document.createElement('button');
+                        btn.textContent = 'Logout';
+                        btn.style.marginLeft = '0.6rem';
+                        btn.style.background = '#E53935';
+                        btn.style.border = 'none';
+                        btn.style.color = '#fff';
+                        btn.style.padding = '0.2rem 0.5rem';
+                        btn.style.borderRadius = '4px';
+                        btn.addEventListener('click', function(){ window.location.href = '{% url "logout" %}'; });
+                        warn.appendChild(btn);
+                        document.body.appendChild(warn);
+                    }
+                })
+                .catch(err => { console.debug('whoami check failed', err); });
+        })();
+    </script>
+</body>
+</html>
